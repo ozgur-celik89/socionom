@@ -9,8 +9,8 @@ export const brandColors = {
   paper: "#ffffff",
 } as const;
 
-/** Samma märke som src/app/icon.svg – två överlappande cirklar (matchning). */
-export const brandMarkSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64"><defs><clipPath id="overlap"><circle cx="25" cy="32" r="15"/></clipPath></defs><rect width="64" height="64" rx="14" fill="${brandColors.forest}"/><circle cx="25" cy="32" r="15" fill="${brandColors.blush}"/><circle cx="39" cy="32" r="15" fill="${brandColors.paper}"/><g clip-path="url(#overlap)"><circle cx="39" cy="32" r="15" fill="${brandColors.rose}"/></g></svg>`;
+/** Samma bokstavsfria portföljmärke som src/app/icon.svg (matchning). */
+export const brandMarkSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64"><path d="M22 21v-4.5A7.5 7.5 0 0 1 29.5 9h5a7.5 7.5 0 0 1 7.5 7.5V21h-7v-4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v4h-7Z" fill="${brandColors.forest}"/><rect x="6" y="19" width="52" height="38" rx="10" fill="${brandColors.forest}"/><path d="M6 31.5h52" stroke="${brandColors.shell}" stroke-width="3"/><rect x="27" y="28" width="10" height="9" rx="2.5" fill="${brandColors.shell}"/></svg>`;
 
 /** Märket som data-URI, för <img> i ImageResponse (satori kan inte läsa externa filer). */
 export const brandMarkDataUri = `data:image/svg+xml;base64,${Buffer.from(brandMarkSvg).toString("base64")}`;

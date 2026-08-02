@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { brandColors, brandMarkDataUri } from "@/lib/brand";
+import { brandMarkDataUri } from "@/lib/brand";
 
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
@@ -14,7 +14,7 @@ export default function AppleIcon() {
           height: "100%",
           alignItems: "center",
           justifyContent: "center",
-          background: brandColors.forest,
+          background: "transparent",
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}

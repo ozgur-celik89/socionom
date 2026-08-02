@@ -1,13 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <defs>
-    <clipPath id="overlap">
-      <circle cx="25" cy="32" r="15"/>
-    </clipPath>
-  </defs>
-  <rect width="64" height="64" rx="14" fill="#185A4A"/>
-  <circle cx="25" cy="32" r="15" fill="#F4DCE5"/>
-  <circle cx="39" cy="32" r="15" fill="#FFFFFF"/>
-  <g clip-path="url(#overlap)">
-    <circle cx="39" cy="32" r="15" fill="#88445C"/>
-  </g>
+  <path
+    d="M22 21v-4.5A7.5 7.5 0 0 1 29.5 9h5a7.5 7.5 0 0 1 7.5 7.5V21h-7v-4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v4h-7Z"
+    fill="#185A4A"
+  />
+  <rect x="6" y="19" width="52" height="38" rx="10" fill="#185A4A"/>
+  <path d="M6 31.5h52" stroke="#143F35" stroke-width="3"/>
+  <rect x="27" y="28" width="10" height="9" rx="2.5" fill="#143F35"/>
 </svg>
