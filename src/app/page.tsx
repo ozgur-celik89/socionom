@@ -40,7 +40,7 @@ export default async function HomePage() {
             <strong>Yrkesområden</strong>
             <div>
               {occupationCategories.map((occupation) => (
-                <Link href={`/jobb/yrke/${occupation.slug}`} key={occupation.slug}>
+                <Link href={`/lediga-jobb/yrke/${occupation.slug}`} key={occupation.slug}>
                   {occupation.shortLabel}
                 </Link>
               ))}
@@ -57,7 +57,7 @@ export default async function HomePage() {
               <h2>Senaste socionomjobben</h2>
               <p>Ett urval av de senast publicerade jobben från Arbetsförmedlingen.</p>
             </div>
-            <Link className="text-link" href="/jobb">Visa alla jobb <ArrowRightIcon /></Link>
+            <Link className="text-link" href="/lediga-jobb">Visa alla jobb <ArrowRightIcon /></Link>
           </div>
           {searchResult ? <JobList jobs={searchResult.jobs} /> : <ApiErrorState />}
         </div>
@@ -70,11 +70,11 @@ export default async function HomePage() {
               <span className="eyebrow">Jobb nära dig</span>
               <h2>Sök efter region</h2>
             </div>
-            <Link className="text-link" href="/jobb">Sök i hela Sverige <ArrowRightIcon /></Link>
+            <Link className="text-link" href="/lediga-jobb">Sök i hela Sverige <ArrowRightIcon /></Link>
           </div>
           <div className="region-grid">
             {priorityRegions.map((region) => (
-              <Link className="region-link" href={`/jobb/ort/${region.slug}`} key={region.slug}>
+              <Link className="region-link" href={`/lediga-jobb/ort/${region.slug}`} key={region.slug}>
                 {region.shortLabel} <ArrowRightIcon />
               </Link>
             ))}

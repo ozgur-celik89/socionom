@@ -84,13 +84,13 @@ Föreslagen struktur:
 
 ```text
 /
-/jobb
-/jobb/[id]/[slug]
-/jobb/yrke/socialsekreterare
-/jobb/yrke/kurator
-/jobb/ort/stockholm
-/jobb/ort/goteborg
-/jobb/distans
+/lediga-jobb
+/lediga-jobb/[id]/[slug]
+/lediga-jobb/yrke/socialsekreterare
+/lediga-jobb/yrke/kurator
+/lediga-jobb/ort/stockholm
+/lediga-jobb/ort/goteborg
+/lediga-jobb/distans
 /om
 /kontakt
 /annonsera
@@ -99,12 +99,14 @@ Föreslagen struktur:
 Varje individuell jobbannons ska ha en stabil URL baserad på Arbetsförmedlingens annons-ID. Ett exempel är:
 
 ```text
-/jobb/12345678/socialsekreterare-till-stockholms-stad
+/lediga-jobb/12345678/socialsekreterare-till-stockholms-stad
 ```
 
 ID:t är den beständiga delen. Sluggen är till för människor och sökmotorer.
 
-Yrkes- och ortssidor ligger under egna statiska URL-grenar (`/jobb/yrke/` och `/jobb/ort/`). Det undviker routingkrockar med individuella jobbannonser och gör sidtypen tydlig.
+Yrkes- och ortssidor ligger under egna statiska URL-grenar (`/lediga-jobb/yrke/` och `/lediga-jobb/ort/`). Det undviker routingkrockar med individuella jobbannonser och gör sidtypen tydlig.
+
+Den tidigare URL-grenen `/jobb` omdirigeras permanent, sida för sida, till motsvarande adress under `/lediga-jobb`. Den gamla grenen ska inte generera egna canonical-URL:er eller förekomma i sitemap.
 
 ## Cache och tillgänglighet
 

@@ -25,12 +25,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${job.title} hos ${job.employerName}`,
     description,
-    alternates: { canonical: `/jobb/${job.id}/${job.slug}` },
+    alternates: { canonical: `/lediga-jobb/${job.id}/${job.slug}` },
     openGraph: {
       type: "article",
       title: job.title,
       description,
-      url: `/jobb/${job.id}/${job.slug}`,
+      url: `/lediga-jobb/${job.id}/${job.slug}`,
       publishedTime: job.publishedAt,
       modifiedTime: job.sourceUpdatedAt,
     },
@@ -41,7 +41,7 @@ export default async function JobDetailPage({ params }: Props) {
   const { id, slug } = await params;
   const job = await getJobById(id);
   if (!job) notFound();
-  if (slug !== job.slug) permanentRedirect(`/jobb/${job.id}/${job.slug}`);
+  if (slug !== job.slug) permanentRedirect(`/lediga-jobb/${job.id}/${job.slug}`);
 
   const location = job.locations[0];
   const occupation = getBestOccupationCategory(job.title, job.occupationConceptIds);
@@ -65,9 +65,9 @@ export default async function JobDetailPage({ params }: Props) {
 
   const breadcrumbs = [
     { label: "Start", href: "/" },
-    { label: "Lediga jobb", href: "/jobb" },
-    ...(occupation ? [{ label: occupation.shortLabel, href: `/jobb/yrke/${occupation.slug}` }] : []),
-    ...(region ? [{ label: region.shortLabel, href: `/jobb/ort/${region.slug}` }] : []),
+    { label: "Lediga jobb", href: "/lediga-jobb" },
+    ...(occupation ? [{ label: occupation.shortLabel, href: `/lediga-jobb/yrke/${occupation.slug}` }] : []),
+    ...(region ? [{ label: region.shortLabel, href: `/lediga-jobb/ort/${region.slug}` }] : []),
     { label: job.title },
   ];
 

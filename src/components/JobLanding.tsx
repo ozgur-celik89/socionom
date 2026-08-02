@@ -51,12 +51,12 @@ export async function JobLanding({
 
   const relatedLinks = occupation && !region
     ? priorityRegions.map((item) => ({
-        href: `/jobb/yrke/${occupation.slug}/${item.slug}`,
+        href: `/lediga-jobb/yrke/${occupation.slug}/${item.slug}`,
         label: `${occupation.shortLabel} i ${item.shortLabel}`,
       }))
     : region
       ? occupationCategories.map((item) => ({
-          href: `/jobb/yrke/${item.slug}/${region.slug}`,
+          href: `/lediga-jobb/yrke/${item.slug}/${region.slug}`,
           label: `${item.shortLabel} i ${region.shortLabel}`,
         }))
       : [];

@@ -6,16 +6,16 @@ import { escapeXml, xmlResponse } from "@/lib/xml";
 export function GET() {
   const paths = [
     "",
-    "/jobb",
-    "/jobb/distans",
+    "/lediga-jobb",
+    "/lediga-jobb/distans",
     "/om",
     "/sa-valjer-vi-jobb",
     "/annonsera",
     "/kontakt",
     "/integritet",
     "/kakor",
-    ...occupationCategories.map((occupation) => `/jobb/yrke/${occupation.slug}`),
-    ...priorityRegions.map((region) => `/jobb/ort/${region.slug}`),
+    ...occupationCategories.map((occupation) => `/lediga-jobb/yrke/${occupation.slug}`),
+    ...priorityRegions.map((region) => `/lediga-jobb/ort/${region.slug}`),
   ];
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

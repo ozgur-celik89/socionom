@@ -11,7 +11,7 @@ export default function ErrorPage({ reset }: { reset: () => void }) {
         <p>Sidan kunde inte visas just nu. Försök igen, eller gå tillbaka till jobbsökningen.</p>
         <div className="button-row centered-buttons">
           <button className="button button-primary" onClick={() => reset()} type="button">Försök igen</button>
-          <Link className="button button-secondary" href="/jobb">Hitta jobb</Link>
+          <Link className="button button-secondary" href="/lediga-jobb">Hitta jobb</Link>
         </div>
       </div>
     </div>

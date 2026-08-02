@@ -15,10 +15,10 @@ export function Footer() {
         <div>
           <h2>Hitta jobb</h2>
           <ul>
-            <li><Link href="/jobb">Alla jobb</Link></li>
+            <li><Link href="/lediga-jobb">Alla jobb</Link></li>
             {occupationCategories.map((category) => (
               <li key={category.slug}>
-                <Link href={`/jobb/yrke/${category.slug}`}>{category.shortLabel}</Link>
+                <Link href={`/lediga-jobb/yrke/${category.slug}`}>{category.shortLabel}</Link>
               </li>
             ))}
           </ul>

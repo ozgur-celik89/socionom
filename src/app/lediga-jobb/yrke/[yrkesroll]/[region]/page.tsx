@@ -19,7 +19,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   return {
     title: `${occupation.shortLabel}-jobb i ${region.shortLabel}`,
     description: `Hitta lediga jobb som ${occupation.shortLabel} i ${region.label}. Aktuella annonser samlade på socionom.se.`,
-    alternates: { canonical: `/jobb/yrke/${occupation.slug}/${region.slug}` },
+    alternates: { canonical: `/lediga-jobb/yrke/${occupation.slug}/${region.slug}` },
     robots: { index: false, follow: true },
   };
 }
@@ -30,11 +30,11 @@ export default async function OccupationRegionPage({ params, searchParams }: Pro
   const region = getRegion(regionSlug);
   if (!occupation || !region) notFound();
 
-  const basePath = `/jobb/yrke/${occupation.slug}/${region.slug}`;
+  const basePath = `/lediga-jobb/yrke/${occupation.slug}/${region.slug}`;
   const breadcrumbs = [
     { label: "Start", href: "/" },
-    { label: "Lediga jobb", href: "/jobb" },
-    { label: occupation.shortLabel, href: `/jobb/yrke/${occupation.slug}` },
+    { label: "Lediga jobb", href: "/lediga-jobb" },
+    { label: occupation.shortLabel, href: `/lediga-jobb/yrke/${occupation.slug}` },
     { label: region.shortLabel },
   ];
 

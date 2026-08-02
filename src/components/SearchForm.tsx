@@ -39,7 +39,7 @@ export function SearchForm({
 
   if (variant === "hero") {
     return (
-      <form action="/jobb" className="hero-search" method="get" onSubmit={handleSubmit} role="search">
+      <form action="/lediga-jobb" className="hero-search" method="get" onSubmit={handleSubmit} role="search">
         <div className="field field-search">
           <label htmlFor="hero-q">Yrke eller sökord</label>
           <div className="input-with-icon">
@@ -65,7 +65,7 @@ export function SearchForm({
   }
 
   return (
-    <form action="/jobb" className="filter-panel" method="get" onSubmit={handleSubmit} role="search">
+    <form action="/lediga-jobb" className="filter-panel" method="get" onSubmit={handleSubmit} role="search">
       <div className="field filter-query">
         <label htmlFor="q">Yrke, arbetsgivare eller sökord</label>
         <div className="input-with-icon">
@@ -121,7 +121,7 @@ export function SearchForm({
           <span>Visa bara jobb med möjlighet till distansarbete</span>
         </label>
         <div className="button-row">
-          <Link className="button button-ghost" href="/jobb">Rensa filter</Link>
+          <Link className="button button-ghost" href="/lediga-jobb">Rensa filter</Link>
           <button className="button button-primary" type="submit">
             <SearchIcon />
             Visa jobb

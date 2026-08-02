@@ -9,7 +9,7 @@ export function EmptyJobsState() {
       <div className="state-icon"><AlertIcon /></div>
       <h2>Inga jobb matchade din sökning</h2>
       <p>Prova ett bredare sökord, välj hela Sverige eller ta bort något filter.</p>
-      <Link className="button button-secondary" href="/jobb">Visa alla jobb</Link>
+      <Link className="button button-secondary" href="/lediga-jobb">Visa alla jobb</Link>
     </div>
   );
 }

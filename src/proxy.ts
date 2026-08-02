@@ -5,7 +5,7 @@ import { getCanonicalJobSlug } from "@/integrations/jobtech/search";
 export async function proxy(request: NextRequest) {
   if (request.method !== "GET" && request.method !== "HEAD") return NextResponse.next();
 
-  const pathMatch = request.nextUrl.pathname.match(/^\/jobb\/(\d{1,64})\/([^/]+)$/);
+  const pathMatch = request.nextUrl.pathname.match(/^\/lediga-jobb\/(\d{1,64})\/([^/]+)$/);
   if (!pathMatch) return NextResponse.next();
 
   const [, id, requestedSlug] = pathMatch;
@@ -22,7 +22,7 @@ export async function proxy(request: NextRequest) {
     if (requestedSlug === canonicalSlug) return NextResponse.next();
 
     const canonicalUrl = request.nextUrl.clone();
-    canonicalUrl.pathname = `/jobb/${id}/${canonicalSlug}`;
+    canonicalUrl.pathname = `/lediga-jobb/${id}/${canonicalSlug}`;
     canonicalUrl.search = "";
     return NextResponse.redirect(canonicalUrl, 308);
   } catch {
@@ -32,5 +32,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: "/jobb/:id/:slug",
+  matcher: "/lediga-jobb/:id/:slug",
 };

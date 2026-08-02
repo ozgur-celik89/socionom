@@ -56,6 +56,6 @@ export function jobPostingJsonLd(job: Job) {
       "@type": "Place",
       address,
     },
-    url: `${siteConfig.url}/jobb/${job.id}/${job.slug}`,
+    url: `${siteConfig.url}/lediga-jobb/${job.id}/${job.slug}`,
   };
 }

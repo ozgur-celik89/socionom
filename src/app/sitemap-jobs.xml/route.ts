@@ -21,7 +21,7 @@ export async function GET() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${jobs.map((job) => {
-    const location = escapeXml(`${siteConfig.url}/jobb/${job.id}/${job.slug}`);
+    const location = escapeXml(`${siteConfig.url}/lediga-jobb/${job.id}/${job.slug}`);
     const lastModified = job.sourceUpdatedAt ? `<lastmod>${escapeXml(job.sourceUpdatedAt)}</lastmod>` : "";
     return `  <url><loc>${location}</loc>${lastModified}<changefreq>daily</changefreq></url>`;
   }).join("\n")}

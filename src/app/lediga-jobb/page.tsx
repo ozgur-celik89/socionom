@@ -15,7 +15,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   return {
     title: "Lediga socionomjobb i Sverige",
     description: "Sök bland aktuella jobb för socionomer i hela Sverige. Filtrera på yrkesområde, region, omfattning och distansarbete.",
-    alternates: { canonical: "/jobb" },
+    alternates: { canonical: "/lediga-jobb" },
     ...(hasFilters ? { robots: { index: false, follow: true } } : {}),
   };
 }
@@ -62,7 +62,7 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
           }} />
           {result ? (
             <JobResults
-              basePath="/jobb"
+              basePath="/lediga-jobb"
               paginationParams={toPaginationParams(rawParams)}
               result={result}
             />

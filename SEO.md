@@ -29,11 +29,11 @@ Föreslagen SEO-struktur:
 
 ```text
 /
-/jobb
-/jobb/[id]/[slug]
-/jobb/yrke/[yrkesroll]
-/jobb/ort/[region]
-/jobb/yrke/[yrkesroll]/[region]
+/lediga-jobb
+/lediga-jobb/[id]/[slug]
+/lediga-jobb/yrke/[yrkesroll]
+/lediga-jobb/ort/[region]
+/lediga-jobb/yrke/[yrkesroll]/[region]
 /yrkesguide/[slug]
 /artiklar/[slug]
 /om
@@ -44,10 +44,10 @@ Föreslagen SEO-struktur:
 Exempel:
 
 ```text
-/jobb/12345678/socialsekreterare-till-stockholms-stad
-/jobb/yrke/socialsekreterare
-/jobb/ort/stockholm
-/jobb/yrke/socialsekreterare/stockholm
+/lediga-jobb/12345678/socialsekreterare-till-stockholms-stad
+/lediga-jobb/yrke/socialsekreterare
+/lediga-jobb/ort/stockholm
+/lediga-jobb/yrke/socialsekreterare/stockholm
 /yrkesguide/skolkurator
 /artiklar/intervjufragor-socionom
 ```
@@ -57,7 +57,7 @@ Exempel:
 Varje aktiv annons får en serverrenderad sida med en stabil URL:
 
 ```text
-/jobb/12345678/socialsekreterare-till-stockholms-stad
+/lediga-jobb/12345678/socialsekreterare-till-stockholms-stad
 ```
 
 Annonsens ID är URL:ens stabila del. Sluggen är läsbar för användare och sökmotorer. Om titeln ändras ska sidan fortfarande kunna hittas via ID:t och ange den aktuella URL:en som canonical.
@@ -132,13 +132,13 @@ Källa: [Googles dokumentation om JobPosting](https://developers.google.com/sear
 Skapa landningssidor för roller som är centrala för målgruppen:
 
 ```text
-/jobb/yrke/socialsekreterare
-/jobb/yrke/kurator
-/jobb/yrke/bistandshandlaggare
-/jobb/yrke/familjebehandlare
-/jobb/yrke/behandlingsassistent
-/jobb/yrke/skolkurator
-/jobb/yrke/lss-handlaggare
+/lediga-jobb/yrke/socialsekreterare
+/lediga-jobb/yrke/kurator
+/lediga-jobb/yrke/bistandshandlaggare
+/lediga-jobb/yrke/familjebehandlare
+/lediga-jobb/yrke/behandlingsassistent
+/lediga-jobb/yrke/skolkurator
+/lediga-jobb/yrke/lss-handlaggare
 ```
 
 Varje sida ska innehålla:
@@ -164,12 +164,12 @@ Title: Lediga jobb som socialsekreterare | socionom.se
 Börja med län och större orter där det regelbundet finns relevanta jobb:
 
 ```text
-/jobb/ort/stockholm
-/jobb/ort/goteborg
-/jobb/ort/malmo
-/jobb/ort/uppsala
-/jobb/ort/skane
-/jobb/ort/vastra-gotaland
+/lediga-jobb/ort/stockholm
+/lediga-jobb/ort/goteborg
+/lediga-jobb/ort/malmo
+/lediga-jobb/ort/uppsala
+/lediga-jobb/ort/skane
+/lediga-jobb/ort/vastra-gotaland
 ```
 
 Varje sida ska visa aktiva jobb och erbjuda interna länkar till populära yrkesroller i området.
@@ -181,8 +181,8 @@ Skapa inte automatiskt en indexerbar sida för varje kommun. Nya sidor ska lägg
 Exempel:
 
 ```text
-/jobb/yrke/socialsekreterare/stockholm
-/jobb/yrke/kurator/skane
+/lediga-jobb/yrke/socialsekreterare/stockholm
+/lediga-jobb/yrke/kurator/skane
 ```
 
 En kombinationssida får indexeras endast när:
@@ -200,7 +200,7 @@ Tomma kombinationer ska returnera `404` och inte omdirigeras till en generell jo
 Besökare ska kunna använda fritextsökning och filter, exempelvis:
 
 ```text
-/jobb?q=kurator&lan=stockholm&anstallning=heltid
+/lediga-jobb?q=kurator&lan=stockholm&anstallning=heltid
 ```
 
 Dessa tillfälliga URL:er ska normalt inte indexeras. Annars kan kombinationer av yrke, ort, anställningsform, distans och sortering skapa ett mycket stort antal tunna sidor.
@@ -227,6 +227,8 @@ Varje indexerbar sida ska ange sin föredragna URL med `rel="canonical"`.
 - Endast canonical-URL:er ska inkluderas i sitemap.
 
 Om en jobbsida nås med rätt ID men gammal eller felaktig slug ska sidan omdirigeras permanent till den aktuella canonical-URL:en.
+
+Alla tidigare adresser under `/jobb` ska omdirigeras permanent till exakt motsvarande adress under `/lediga-jobb`. Omdirigeringarna ska behållas långsiktigt, medan interna länkar, canonical-URL:er och sitemap endast använder den nya URL-grenen.
 
 ## Utgångna och borttagna jobb
 

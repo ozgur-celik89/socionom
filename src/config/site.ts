@@ -8,7 +8,7 @@ export const siteConfig = {
 } as const;
 
 export const mainNavigation = [
-  { href: "/jobb", label: "Hitta jobb" },
+  { href: "/lediga-jobb", label: "Hitta jobb" },
   { href: "/#yrkesomraden", label: "Yrkesområden" },
   { href: "/om", label: "Om oss" },
 ] as const;

@@ -17,7 +17,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   return {
     title: `Lediga jobb som ${occupation.shortLabel}`,
     description: `${occupation.description} Se aktuella annonser och sök nästa jobb på socionom.se.`,
-    alternates: { canonical: `/jobb/yrke/${occupation.slug}` },
+    alternates: { canonical: `/lediga-jobb/yrke/${occupation.slug}` },
     ...(hasSearchParams(query) ? { robots: { index: false, follow: true } } : {}),
   };
 }
@@ -27,10 +27,10 @@ export default async function OccupationPage({ params, searchParams }: Props) {
   const occupation = getOccupationCategory(yrkesroll);
   if (!occupation) notFound();
 
-  const basePath = `/jobb/yrke/${occupation.slug}`;
+  const basePath = `/lediga-jobb/yrke/${occupation.slug}`;
   const breadcrumbs = [
     { label: "Start", href: "/" },
-    { label: "Lediga jobb", href: "/jobb" },
+    { label: "Lediga jobb", href: "/lediga-jobb" },
     { label: occupation.shortLabel },
   ];
 

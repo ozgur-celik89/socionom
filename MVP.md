@@ -103,12 +103,12 @@ Funktioner utanför MVP ska inte implementeras i förväg. Arkitekturen får fö
 
 ```text
 /
-/jobb
-/jobb/[id]/[slug]
-/jobb/yrke/[yrkesroll]
-/jobb/ort/[region]
-/jobb/yrke/[yrkesroll]/[region]
-/jobb/distans
+/lediga-jobb
+/lediga-jobb/[id]/[slug]
+/lediga-jobb/yrke/[yrkesroll]
+/lediga-jobb/ort/[region]
+/lediga-jobb/yrke/[yrkesroll]/[region]
+/lediga-jobb/distans
 /om
 /sa-valjer-vi-jobb
 /kontakt
@@ -176,7 +176,7 @@ Sekundär arbetsgivarlänk: Annonsera på socionom.se
 ### URL
 
 ```text
-/jobb?q=&yrke=&region=&anstallning=&distans=&sida=
+/lediga-jobb?q=&yrke=&region=&anstallning=&distans=&sida=
 ```
 
 ### Funktioner
@@ -195,7 +195,7 @@ Standard är relevans med publiceringsdatum som sekundär signal. Om JobSearch i
 
 ### Indexering
 
-- Den rena sidan `/jobb` får indexeras.
+- Den rena sidan `/lediga-jobb` får indexeras.
 - Fritextsökningar och godtyckliga filterkombinationer får `noindex`.
 - Redaktionella yrkes- och ortssidor har egna rena URL:er och får indexeras enligt `SEO.md`.
 
@@ -221,7 +221,7 @@ Etiketten `Nytt` används för jobb som publicerats inom en konfigurerbar kort p
 ### URL
 
 ```text
-/jobb/[id]/[slug]
+/lediga-jobb/[id]/[slug]
 ```
 
 ### Innehåll

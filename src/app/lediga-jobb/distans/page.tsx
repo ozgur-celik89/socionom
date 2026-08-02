@@ -8,7 +8,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   return {
     title: "Socionomjobb på distans",
     description: "Hitta socionomjobb och tjänster inom socialt arbete där arbetsgivaren anger möjlighet till distansarbete.",
-    alternates: { canonical: "/jobb/distans" },
+    alternates: { canonical: "/lediga-jobb/distans" },
     ...(hasSearchParams(query) ? { robots: { index: false, follow: true } } : {}),
   };
 }
@@ -17,13 +17,13 @@ export default async function RemoteJobsPage({ searchParams }: { searchParams: P
   const query = await searchParams;
   const breadcrumbs = [
     { label: "Start", href: "/" },
-    { label: "Lediga jobb", href: "/jobb" },
+    { label: "Lediga jobb", href: "/lediga-jobb" },
     { label: "Distansjobb" },
   ];
 
   return (
     <JobLanding
-      basePath="/jobb/distans"
+      basePath="/lediga-jobb/distans"
       breadcrumbs={breadcrumbs}
       description="Här samlar vi jobb där annonsen anger möjlighet att arbeta helt eller delvis på distans. Kontrollera alltid villkoren i den fullständiga annonsen."
       page={parsePage(query.sida)}

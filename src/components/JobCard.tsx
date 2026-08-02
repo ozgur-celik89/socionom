@@ -9,7 +9,7 @@ export function JobCard({ job }: { job: Job }) {
     ? `${location?.municipality ?? location?.region ?? "Sverige"} · Distans möjlig`
     : location?.municipality ?? location?.region ?? "Sverige";
   const scope = formatScope(job.scopeMin, job.scopeMax);
-  const jobHref = `/jobb/${job.id}/${job.slug}`;
+  const jobHref = `/lediga-jobb/${job.id}/${job.slug}`;
 
   return (
     <article className="job-card">
