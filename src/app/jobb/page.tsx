@@ -1,0 +1,76 @@
+import type { Metadata } from "next";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { EmployerCallout, ApiErrorState } from "@/components/States";
+import { JobResults } from "@/components/JobResults";
+import { JsonLd } from "@/components/JsonLd";
+import { SearchForm } from "@/components/SearchForm";
+import { searchJobs } from "@/integrations/jobtech/search";
+import { hasSearchParams, parseJobSearchParams, toPaginationParams, type RawSearchParams } from "@/lib/search-params";
+import { breadcrumbJsonLd } from "@/lib/seo";
+
+export async function generateMetadata({ searchParams }: { searchParams: Promise<RawSearchParams> }): Promise<Metadata> {
+  const rawParams = await searchParams;
+  const hasFilters = hasSearchParams(rawParams);
+
+  return {
+    title: "Lediga socionomjobb i Sverige",
+    description: "Sök bland aktuella jobb för socionomer i hela Sverige. Filtrera på yrkesområde, region, omfattning och distansarbete.",
+    alternates: { canonical: "/jobb" },
+    ...(hasFilters ? { robots: { index: false, follow: true } } : {}),
+  };
+}
+
+export default async function JobsPage({ searchParams }: { searchParams: Promise<RawSearchParams> }) {
+  const rawParams = await searchParams;
+  const filters = parseJobSearchParams(rawParams);
+  let result;
+
+  try {
+    result = await searchJobs({
+      query: filters.query ?? filters.occupation?.query,
+      occupationGroupIds: filters.occupation?.groupIds,
+      regionId: filters.region?.conceptId,
+      worktimeExtentId: filters.workingHours?.conceptId,
+      remote: filters.remote,
+      sort: filters.sort,
+      page: filters.page,
+    });
+  } catch {
+    result = null;
+  }
+
+  const breadcrumbs = [{ label: "Start", href: "/" }, { label: "Lediga jobb" }];
+
+  return (
+    <>
+      <section className="page-hero">
+        <div className="site-container">
+          <Breadcrumbs items={breadcrumbs} />
+          <h1>Lediga jobb för socionomer</h1>
+          <p>Sök bland aktuella tjänster inom socialt arbete i hela Sverige.</p>
+        </div>
+      </section>
+      <section className="section-compact">
+        <div className="site-container">
+          <SearchForm values={{
+            q: filters.query,
+            yrke: filters.occupation?.slug,
+            region: filters.region?.slug,
+            anstallning: filters.workingHours?.slug,
+            distans: filters.remote,
+            sort: filters.sortValue,
+          }} />
+          {result ? (
+            <JobResults
+              basePath="/jobb"
+              paginationParams={toPaginationParams(rawParams)}
+              result={result}
+            />
+          ) : <ApiErrorState />}
+          <EmployerCallout />
+        </div>
+      </section>
+      <JsonLd data={breadcrumbJsonLd(breadcrumbs)} />
+    </>
+  );
+}

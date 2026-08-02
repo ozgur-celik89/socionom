@@ -1,0 +1,46 @@
+{
+  "name": "socionom-se",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "En nischad jobbsajt för socionomer i Sverige.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "audit:relevance": "node scripts/audit-job-relevance.mjs",
+    "audit:relevance:treatment": "node scripts/audit-job-relevance.mjs --treatment-only",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "packageManager": "npm@11.13.0",
+  "dependencies": {
+    "@fontsource-variable/manrope": "5.3.0",
+    "@sentry/nextjs": "^10.69.0",
+    "@vercel/analytics": "2.0.1",
+    "next": "16.2.12",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "sanitize-html": "2.17.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "26.1.2",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "@types/sanitize-html": "2.16.1",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.2.12",
+    "tailwindcss": "4.3.3",
+    "typescript": "6.0.3",
+    "vitest": "4.1.10"
+  },
+  "overrides": {
+    "postcss": "8.5.25",
+    "sharp": "0.35.3"
+  }
+}

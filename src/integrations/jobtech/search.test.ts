@@ -1,0 +1,114 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { getCanonicalJobSlug, getJobById, searchJobs } from "./search";
+
+function validAd({
+  occupationGroupId = "pok1_ipJ_yzD",
+  occupationNameId = "socialsekreterare",
+}: {
+  occupationGroupId?: string;
+  occupationNameId?: string;
+} = {}) {
+  return {
+    id: "123",
+    headline: "Socialsekreterare till barn och unga",
+    webpage_url: "https://arbetsformedlingen.se/platsbanken/annonser/123",
+    publication_date: "2099-01-01T10:00:00",
+    application_deadline: "2099-02-01T23:59:59",
+    description: { text: "Ett viktigt arbete." },
+    employer: { name: "Exempelkommunen" },
+    occupation: { concept_id: occupationNameId, label: "Socialsekreterare" },
+    occupation_group: { concept_id: occupationGroupId, label: "Socialsekreterare" },
+    workplace_address: { region: "Stockholms län", country: "Sverige" },
+  };
+}
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
+describe("JobSearch request", () => {
+  it("uses the official worktime-extent parameter for full-time and part-time filters", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ total: { value: 0 }, hits: [] }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await searchJobs({ worktimeExtentId: "947z_JGS_Uk2" });
+
+    const requestedUrl = fetchMock.mock.calls[0]?.[0];
+    expect(requestedUrl).toBeInstanceOf(URL);
+    expect((requestedUrl as URL).searchParams.get("worktime-extent")).toBe("947z_JGS_Uk2");
+    expect((requestedUrl as URL).searchParams.has("working-hours-type")).toBe(false);
+    expect((requestedUrl as URL).searchParams.get("country")).toBe("i46j_HmG_v64");
+    expect((requestedUrl as URL).searchParams.getAll("occupation-name")).toEqual([
+      "-NSEG_DmQ_waj",
+      "-KJoL_2hp_Sa5",
+    ]);
+  });
+
+  it("uses the selected region without the broader Sweden geography", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ total: { value: 0 }, hits: [] }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await searchJobs({ regionId: "CifL_Rzy_Mku" });
+
+    const requestedUrl = fetchMock.mock.calls[0]?.[0] as URL;
+    expect(requestedUrl.searchParams.get("region")).toBe("CifL_Rzy_Mku");
+    expect(requestedUrl.searchParams.has("country")).toBe(false);
+  });
+
+  it("only maps ads that belong to the approved core selection", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        total: { value: 2 },
+        hits: [validAd(), validAd({ occupationGroupId: "other-group" })],
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await searchJobs();
+
+    expect(result.jobs).toHaveLength(1);
+    expect(result.jobs[0]?.id).toBe("123");
+  });
+
+  it("does not expose individual ads outside the approved core selection", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => validAd({ occupationGroupId: "other-group" }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => validAd({ occupationNameId: "NSEG_DmQ_waj" }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => validAd({ occupationGroupId: "other-group" }),
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(getJobById("123")).resolves.toBeNull();
+    await expect(getJobById("124")).resolves.toBeNull();
+    await expect(getCanonicalJobSlug("125")).resolves.toBeNull();
+  });
+
+  it("keeps relevant individual ads available", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => validAd(),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const job = await getJobById("123");
+
+    expect(job?.id).toBe("123");
+    expect(job?.slug).toBe("socialsekreterare-till-barn-och-unga");
+  });
+
+});
