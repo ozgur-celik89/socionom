@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     url: siteConfig.url,
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Socionomjobb – lediga jobb för socionomer",
     description: siteConfig.description,
   },
