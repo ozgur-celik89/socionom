@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { EmployerCallout, ApiErrorState } from "@/components/States";
+import { EmployerCallout, ApiErrorState, JobResultsSkeleton } from "@/components/States";
 import { JobResults } from "@/components/JobResults";
 import { JsonLd } from "@/components/JsonLd";
 import { SearchForm } from "@/components/SearchForm";
@@ -8,21 +9,15 @@ import { searchJobs } from "@/integrations/jobtech/search";
 import { hasSearchParams, parseJobSearchParams, toPaginationParams, type RawSearchParams } from "@/lib/search-params";
 import { breadcrumbJsonLd } from "@/lib/seo";
 
-export async function generateMetadata({ searchParams }: { searchParams: Promise<RawSearchParams> }): Promise<Metadata> {
-  const rawParams = await searchParams;
-  const hasFilters = hasSearchParams(rawParams);
+type ParsedFilters = ReturnType<typeof parseJobSearchParams>;
 
-  return {
-    title: "Lediga socionomjobb i Sverige",
-    description: "Sök bland aktuella jobb för socionomer i hela Sverige. Filtrera på yrkesområde, region, omfattning och distansarbete.",
-    alternates: { canonical: "/lediga-jobb" },
-    ...(hasFilters ? { robots: { index: false, follow: true } } : {}),
-  };
-}
-
-export default async function JobsPage({ searchParams }: { searchParams: Promise<RawSearchParams> }) {
-  const rawParams = await searchParams;
-  const filters = parseJobSearchParams(rawParams);
+async function SearchResults({
+  filters,
+  paginationParams,
+}: {
+  filters: ParsedFilters;
+  paginationParams: URLSearchParams;
+}) {
   let result;
 
   try {
@@ -39,7 +34,33 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
     result = null;
   }
 
+  return result ? (
+    <JobResults
+      basePath="/lediga-jobb"
+      paginationParams={paginationParams}
+      result={result}
+    />
+  ) : <ApiErrorState />;
+}
+
+export async function generateMetadata({ searchParams }: { searchParams: Promise<RawSearchParams> }): Promise<Metadata> {
+  const rawParams = await searchParams;
+  const hasFilters = hasSearchParams(rawParams);
+
+  return {
+    title: "Lediga socionomjobb i Sverige",
+    description: "Sök bland aktuella jobb för socionomer i hela Sverige. Filtrera på yrkesområde, region, omfattning och distansarbete.",
+    alternates: { canonical: "/lediga-jobb" },
+    ...(hasFilters ? { robots: { index: false, follow: true } } : {}),
+  };
+}
+
+export default async function JobsPage({ searchParams }: { searchParams: Promise<RawSearchParams> }) {
+  const rawParams = await searchParams;
+  const filters = parseJobSearchParams(rawParams);
   const breadcrumbs = [{ label: "Start", href: "/" }, { label: "Lediga jobb" }];
+  const paginationParams = toPaginationParams(rawParams);
+  const resultsKey = [paginationParams.toString(), filters.page].join(":");
 
   return (
     <>
@@ -60,13 +81,9 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
             distans: filters.remote,
             sort: filters.sortValue,
           }} />
-          {result ? (
-            <JobResults
-              basePath="/lediga-jobb"
-              paginationParams={toPaginationParams(rawParams)}
-              result={result}
-            />
-          ) : <ApiErrorState />}
+          <Suspense fallback={<JobResultsSkeleton />} key={resultsKey}>
+            <SearchResults filters={filters} paginationParams={paginationParams} />
+          </Suspense>
           <EmployerCallout />
         </div>
       </section>

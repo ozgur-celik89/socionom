@@ -1,17 +1,27 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { getCanonicalJobSlug, getJobById, searchJobs } from "./search";
+import {
+  getCanonicalJobSlug,
+  getJobById,
+  getJobsForSitemap,
+  JobSearchUnavailableError,
+  searchJobs,
+} from "./search";
 
 function validAd({
+  id = "123",
+  headline = "Socialsekreterare till barn och unga",
   occupationGroupId = "pok1_ipJ_yzD",
   occupationNameId = "socialsekreterare",
 }: {
+  id?: string;
+  headline?: string;
   occupationGroupId?: string;
   occupationNameId?: string;
 } = {}) {
   return {
-    id: "123",
-    headline: "Socialsekreterare till barn och unga",
-    webpage_url: "https://arbetsformedlingen.se/platsbanken/annonser/123",
+    id,
+    headline,
+    webpage_url: `https://arbetsformedlingen.se/platsbanken/annonser/${id}`,
     publication_date: "2099-01-01T10:00:00",
     application_deadline: "2099-02-01T23:59:59",
     description: { text: "Ett viktigt arbete." },
@@ -45,6 +55,12 @@ describe("JobSearch request", () => {
       "-NSEG_DmQ_waj",
       "-KJoL_2hp_Sa5",
     ]);
+
+    const requestOptions = fetchMock.mock.calls[0]?.[1] as { headers?: Record<string, string> };
+    expect(requestOptions.headers?.["X-Fields"]).toContain("description{text}");
+    expect(requestOptions.headers?.["X-Fields"]).toContain("working_hours_type{label}");
+    expect(requestOptions.headers?.["X-Fields"]).not.toContain("text_formatted");
+    expect(requestOptions.headers?.["X-Fields"]).not.toContain("application_details");
   });
 
   it("uses the selected region without the broader Sweden geography", async () => {
@@ -59,6 +75,14 @@ describe("JobSearch request", () => {
     const requestedUrl = fetchMock.mock.calls[0]?.[0] as URL;
     expect(requestedUrl.searchParams.get("region")).toBe("CifL_Rzy_Mku");
     expect(requestedUrl.searchParams.has("country")).toBe(false);
+  });
+
+  it("retries once before reporting that JobSearch is unavailable", async () => {
+    const fetchMock = vi.fn().mockRejectedValue(new Error("network unavailable"));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(searchJobs()).rejects.toBeInstanceOf(JobSearchUnavailableError);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it("only maps ads that belong to the approved core selection", async () => {
@@ -109,6 +133,39 @@ describe("JobSearch request", () => {
 
     expect(job?.id).toBe("123");
     expect(job?.slug).toBe("socialsekreterare-till-barn-och-unga");
+    const requestOptions = fetchMock.mock.calls[0]?.[1] as { headers?: Record<string, string> };
+    expect(requestOptions.headers?.["X-Fields"]).toBeUndefined();
+  });
+
+  it("loads sitemap pages with a minimal one-hour-cached response", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ total: { value: 101 }, hits: [validAd({ id: "first" })] }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ total: { value: 101 }, hits: [validAd({ id: "second", headline: "Kurator" })] }),
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const jobs = await getJobsForSitemap();
+
+    expect(jobs).toEqual([
+      expect.objectContaining({ id: "first", slug: "socialsekreterare-till-barn-och-unga" }),
+      expect.objectContaining({ id: "second", slug: "kurator" }),
+    ]);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+
+    const firstOptions = fetchMock.mock.calls[0]?.[1] as {
+      headers?: Record<string, string>;
+      next?: { revalidate?: number };
+    };
+    const secondUrl = fetchMock.mock.calls[1]?.[0] as URL;
+    expect(firstOptions.headers?.["X-Fields"]).toContain("timestamp");
+    expect(firstOptions.headers?.["X-Fields"]).not.toContain("description");
+    expect(firstOptions.next?.revalidate).toBe(3600);
+    expect(secondUrl.searchParams.get("offset")).toBe("100");
   });
 
 });

@@ -311,7 +311,7 @@ summary {
   font-size: clamp(1.05rem, 2vw, 1.25rem);
   line-height: 1.65;
   margin: 1.25rem 0 2rem;
-  max-width: 670px;
+  max-width: 760px;
 }
 
 .hero-search {
@@ -552,10 +552,62 @@ summary {
   padding: 1.15rem;
 }
 
+.active-filters {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 0.85rem;
+}
+
+.active-filters-label {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  font-weight: 730;
+}
+
+.active-filter-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.active-filter-chip {
+  align-items: center;
+  background: var(--color-surface-green);
+  border: 1px solid #b9cec5;
+  border-radius: 999px;
+  color: var(--color-primary-hover);
+  display: inline-flex;
+  font-size: 0.8rem;
+  font-weight: 680;
+  gap: 0.45rem;
+  min-height: 36px;
+  padding: 0.4rem 0.7rem;
+  text-decoration: none;
+}
+
+.active-filter-chip:hover {
+  border-color: var(--color-primary);
+}
+
+.active-filter-chip span {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.mobile-filter-toggle {
+  display: none;
+}
+
+.filter-controls {
+  display: grid;
+  gap: 1.15rem;
+}
+
 .filter-grid {
   display: grid;
   gap: 0.8rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .filter-actions {
@@ -604,6 +656,78 @@ summary {
 .job-list {
   display: grid;
   gap: 0.85rem;
+}
+
+.job-results-loading {
+  min-height: 520px;
+}
+
+.job-card-skeleton {
+  pointer-events: none;
+}
+
+.job-card-skeleton:hover {
+  border-color: var(--color-border);
+  box-shadow: none;
+  transform: none;
+}
+
+.skeleton-line {
+  background: #e8eeeb;
+  border-radius: 999px;
+  display: block;
+  height: 13px;
+  width: 150px;
+}
+
+.skeleton-topline,
+.skeleton-footer,
+.skeleton-meta {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.skeleton-badge {
+  height: 24px;
+  width: 52px;
+}
+
+.skeleton-source {
+  width: 112px;
+}
+
+.skeleton-title {
+  height: 20px;
+  max-width: 470px;
+  width: 58%;
+}
+
+.skeleton-employer {
+  margin-top: 0.65rem;
+  width: 185px;
+}
+
+.skeleton-meta {
+  justify-content: flex-start;
+  gap: 1.2rem;
+}
+
+.skeleton-meta .skeleton-line:nth-child(2) {
+  width: 105px;
+}
+
+.skeleton-meta .skeleton-line:nth-child(3) {
+  width: 125px;
+}
+
+.skeleton-footer {
+  border-top: 1px solid #edf0ee;
+  padding-top: 0.9rem;
+}
+
+.skeleton-footer .skeleton-line:last-child {
+  width: 95px;
 }
 
 .job-card {
@@ -941,6 +1065,10 @@ summary {
   margin: 0.75rem 0 1.4rem;
 }
 
+.job-mobile-apply {
+  display: none;
+}
+
 .job-detail-body {
   padding: 2rem;
 }
@@ -1267,6 +1395,15 @@ summary {
     position: static;
   }
 
+  .job-mobile-apply {
+    display: block;
+    margin-top: 1.4rem;
+  }
+
+  .job-sidebar-apply {
+    display: none;
+  }
+
   .footer-grid {
     grid-template-columns: 1.5fr 1fr 1fr;
   }
@@ -1292,6 +1429,56 @@ summary {
   .hero-search,
   .filter-grid {
     grid-template-columns: 1fr;
+  }
+
+  .mobile-filter-toggle {
+    align-items: center;
+    background: var(--color-surface-green);
+    border: 1px solid var(--color-border);
+    border-radius: 9px;
+    color: var(--color-primary-hover);
+    cursor: pointer;
+    display: flex;
+    font-weight: 720;
+    justify-content: space-between;
+    min-height: 48px;
+    padding: 0.75rem 0.85rem;
+    width: 100%;
+  }
+
+  .mobile-filter-toggle-meta {
+    align-items: center;
+    display: inline-flex;
+    gap: 0.5rem;
+  }
+
+  .mobile-filter-toggle svg {
+    transition: transform 160ms ease;
+  }
+
+  .mobile-filter-toggle.is-open svg {
+    transform: rotate(180deg);
+  }
+
+  .filter-count {
+    align-items: center;
+    background: var(--color-primary);
+    border-radius: 999px;
+    color: white;
+    display: inline-flex;
+    font-size: 0.72rem;
+    height: 24px;
+    justify-content: center;
+    min-width: 24px;
+    padding-inline: 0.35rem;
+  }
+
+  .filter-controls {
+    display: none;
+  }
+
+  .filter-controls.is-open {
+    display: grid;
   }
 
   .hero-search-button {
@@ -1329,6 +1516,24 @@ summary {
 
   .job-card {
     padding: 1.1rem;
+  }
+
+  .job-results-loading {
+    min-height: 470px;
+  }
+
+  .job-list .job-card-skeleton:nth-child(3) {
+    display: none;
+  }
+
+  .skeleton-title {
+    width: 82%;
+  }
+
+  .skeleton-meta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.65rem;
   }
 
   .job-card-footer {

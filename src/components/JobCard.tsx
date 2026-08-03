@@ -1,9 +1,9 @@
 import Link from "next/link";
-import type { Job } from "@/domain/jobs/types";
+import type { JobSummary } from "@/domain/jobs/types";
 import { formatDate, formatPublishedDate, formatScope, isRecentlyPublished } from "@/lib/format";
 import { ArrowRightIcon, BriefcaseIcon, CalendarIcon, ClockIcon, MapPinIcon } from "./icons";
 
-export function JobCard({ job }: { job: Job }) {
+export function JobCard({ job }: { job: JobSummary }) {
   const location = job.locations[0];
   const locationLabel = job.remote
     ? `${location?.municipality ?? location?.region ?? "Sverige"} · Distans möjlig`

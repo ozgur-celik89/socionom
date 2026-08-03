@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { notFound, permanentRedirect } from "next/navigation";
 import { ApplyButton } from "@/components/ApplyButton";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -7,16 +8,17 @@ import { JobList } from "@/components/JobList";
 import { BriefcaseIcon, CalendarIcon, ClockIcon, MapPinIcon } from "@/components/icons";
 import { getBestOccupationCategory } from "@/config/jobs";
 import { getRegionByConceptId } from "@/config/regions";
-import type { Job } from "@/domain/jobs/types";
+import type { JobSummary } from "@/domain/jobs/types";
 import { getJobById, searchJobs } from "@/integrations/jobtech/search";
 import { formatDate, formatScope } from "@/lib/format";
 import { breadcrumbJsonLd, jobPostingJsonLd } from "@/lib/seo";
 
 type Props = { params: Promise<{ id: string; slug: string }> };
+const getRequestJobById = cache(getJobById);
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const job = await getJobById(id);
+  const job = await getRequestJobById(id);
   if (!job) return { title: "Jobbet finns inte", robots: { index: false, follow: true } };
 
   const location = job.locations[0]?.municipality ?? job.locations[0]?.region ?? "Sverige";
@@ -39,7 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function JobDetailPage({ params }: Props) {
   const { id, slug } = await params;
-  const job = await getJobById(id);
+  const job = await getRequestJobById(id);
   if (!job) notFound();
   if (slug !== job.slug) permanentRedirect(`/lediga-jobb/${job.id}/${job.slug}`);
 
@@ -48,7 +50,7 @@ export default async function JobDetailPage({ params }: Props) {
   const region = getRegionByConceptId(location?.regionConceptId);
   const locationLabel = location?.municipality ?? location?.region ?? "Sverige";
   const scope = formatScope(job.scopeMin, job.scopeMax);
-  let relatedJobs: Job[] = [];
+  let relatedJobs: JobSummary[] = [];
 
   try {
     const relatedResult = await searchJobs({
@@ -87,6 +89,10 @@ export default async function JobDetailPage({ params }: Props) {
                   {job.workingHours && <li><ClockIcon />{job.workingHours}</li>}
                   {job.employmentType && <li><BriefcaseIcon />{job.employmentType}</li>}
                 </ul>
+                <div className="job-mobile-apply">
+                  <ApplyButton href={job.applyUrl} jobId={job.id} />
+                  <p className="apply-note">Ansökan öppnas hos Arbetsförmedlingen eller arbetsgivaren.</p>
+                </div>
               </header>
               <div className="job-detail-body">
                 <h2>Om jobbet</h2>
@@ -95,7 +101,7 @@ export default async function JobDetailPage({ params }: Props) {
             </article>
 
             <aside className="job-sidebar" aria-label="Fakta och ansökan">
-              <div className="job-sidebar-card">
+              <div className="job-sidebar-card job-sidebar-apply">
                 <ApplyButton href={job.applyUrl} jobId={job.id} />
                 <p className="apply-note">Ansökan öppnas hos Arbetsförmedlingen eller arbetsgivaren.</p>
               </div>

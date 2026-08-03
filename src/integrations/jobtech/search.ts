@@ -1,16 +1,25 @@
-import type { JobSearchFilters, JobSearchResult } from "@/domain/jobs/types";
+import type { JobSearchFilters, JobSearchResult, SitemapJob } from "@/domain/jobs/types";
 import { coreOccupationGroupIds, excludedOccupationNameIds } from "@/config/jobs";
 import { isApplicationDeadlinePassed } from "@/domain/jobs/rules";
 import { slugify } from "@/lib/slug";
-import { mapJobtechAd } from "./mapper";
+import { mapJobtechAd, mapJobtechAdSummary, mapJobtechSitemapJob } from "./mapper";
 import type { JobtechAd, JobtechSearchResponse } from "./types";
 
 const JOBSEARCH_BASE_URL = "https://jobsearch.api.jobtechdev.se";
 const SWEDEN_CONCEPT_ID = "i46j_HmG_v64";
 const DEFAULT_PAGE_SIZE = 20;
 const MAX_OFFSET = 2000;
+const REQUEST_TIMEOUT_MS = 5_000;
 const CORE_OCCUPATION_GROUP_ID_SET = new Set<string>(coreOccupationGroupIds);
 const EXCLUDED_OCCUPATION_NAME_ID_SET = new Set<string>(excludedOccupationNameIds);
+const SEARCH_RESULT_FIELDS = [
+  "total{value}",
+  "hits{id,webpage_url,headline,application_deadline,description{text},employment_type{label},duration{label},working_hours_type{label},scope_of_work{min,max},employer{name,workplace},occupation{concept_id},occupation_group{concept_id},workplace_address{municipality,municipality_concept_id,region,region_concept_id,country,country_code,city},publication_date,removed}",
+].join(",");
+const SITEMAP_RESULT_FIELDS = [
+  "total{value}",
+  "hits{id,headline,application_deadline,publication_date,removed,timestamp,occupation{concept_id},occupation_group{concept_id}}",
+].join(",");
 
 export class JobSearchUnavailableError extends Error {
   constructor() {
@@ -34,13 +43,16 @@ function matchesApprovedJobSelection(ad: JobtechAd) {
   );
 }
 
-async function fetchJobtech<T>(url: URL, revalidate: number): Promise<T> {
+async function fetchJobtech<T>(url: URL, revalidate: number, fields?: string): Promise<T> {
   for (let attempt = 0; attempt < 2; attempt += 1) {
     try {
       const response = await fetch(url, {
-        headers: { Accept: "application/json" },
+        headers: {
+          Accept: "application/json",
+          ...(fields ? { "X-Fields": fields } : {}),
+        },
         next: { revalidate },
-        signal: AbortSignal.timeout(8_000),
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       });
 
       if (response.ok) return (await response.json()) as T;
@@ -82,10 +94,10 @@ export async function searchJobs(filters: JobSearchFilters = {}): Promise<JobSea
   if (filters.worktimeExtentId) url.searchParams.set("worktime-extent", filters.worktimeExtentId);
   if (filters.remote) url.searchParams.set("remote", "true");
 
-  const response = await fetchJobtech<JobtechSearchResponse>(url, 600);
+  const response = await fetchJobtech<JobtechSearchResponse>(url, 600, SEARCH_RESULT_FIELDS);
   const jobs = (response.hits ?? [])
     .filter(matchesApprovedJobSelection)
-    .map(mapJobtechAd)
+    .map(mapJobtechAdSummary)
     .filter((job) => job !== null);
   const total = Math.max(response.total?.value ?? jobs.length, 0);
   const reachableTotal = Math.min(total, MAX_OFFSET + pageSize);
@@ -135,16 +147,44 @@ export async function getCanonicalJobSlug(id: string) {
   }
 }
 
-export async function getJobsForSitemap() {
-  const firstPage = await searchJobs({ page: 1, pageSize: 100, sort: "pubdate-desc" });
-  const pageCount = Math.min(firstPage.totalPages, 20);
+async function getSitemapPage(page: number) {
+  const pageSize = 100;
+  const url = new URL("/search", JOBSEARCH_BASE_URL);
+
+  url.searchParams.set("limit", String(pageSize));
+  url.searchParams.set("offset", String((page - 1) * pageSize));
+  url.searchParams.set("resdet", "full");
+  url.searchParams.set("country", SWEDEN_CONCEPT_ID);
+  url.searchParams.set("sort", "pubdate-desc");
+
+  for (const groupId of coreOccupationGroupIds) {
+    url.searchParams.append("occupation-group", groupId);
+  }
+
+  for (const occupationNameId of excludedOccupationNameIds) {
+    url.searchParams.append("occupation-name", `-${occupationNameId}`);
+  }
+
+  const response = await fetchJobtech<JobtechSearchResponse>(url, 3600, SITEMAP_RESULT_FIELDS);
+  const jobs = (response.hits ?? [])
+    .filter(matchesApprovedJobSelection)
+    .map(mapJobtechSitemapJob)
+    .filter((job): job is SitemapJob => job !== null);
+
+  return {
+    jobs,
+    total: Math.max(response.total?.value ?? jobs.length, 0),
+  };
+}
+
+export async function getJobsForSitemap(): Promise<SitemapJob[]> {
+  const firstPage = await getSitemapPage(1);
+  const pageCount = Math.min(Math.max(Math.ceil(firstPage.total / 100), 1), 20);
 
   if (pageCount === 1) return firstPage.jobs;
 
   const remainingPages = await Promise.all(
-    Array.from({ length: pageCount - 1 }, (_, index) =>
-      searchJobs({ page: index + 2, pageSize: 100, sort: "pubdate-desc" }),
-    ),
+    Array.from({ length: pageCount - 1 }, (_, index) => getSitemapPage(index + 2)),
   );
 
   return [firstPage, ...remainingPages].flatMap((result) => result.jobs);

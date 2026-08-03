@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mapJobtechAd } from "./mapper";
+import { mapJobtechAd, mapJobtechAdSummary, mapJobtechSitemapJob } from "./mapper";
 
 describe("mapJobtechAd", () => {
   it("maps and sanitizes a valid JobSearch ad", () => {
@@ -88,5 +88,79 @@ describe("mapJobtechAd", () => {
     });
 
     expect(job?.applyUrl).toBe("https://arbetsformedlingen.se/platsbanken/annonser/123");
+  });
+});
+
+describe("mapJobtechAdSummary", () => {
+  it("keeps every field shown on a job card without mapping formatted HTML", () => {
+    const job = mapJobtechAdSummary({
+      id: "summary",
+      headline: "Kurator med möjlighet till distansarbete",
+      webpage_url: "https://arbetsformedlingen.se/platsbanken/annonser/summary",
+      publication_date: "2099-07-20T10:00:00",
+      application_deadline: "2099-09-06T23:59:59",
+      description: {
+        text: "Arbetet kan utföras delvis på distans.",
+        text_formatted: "<p>Den fullständiga annonsen ska inte behöva mappas för kortet.</p>",
+      },
+      employer: { name: "Exempelkommunen" },
+      employment_type: { label: "Tills vidare" },
+      duration: { label: "Tillsvidare" },
+      working_hours_type: { label: "Heltid" },
+      scope_of_work: { min: 100, max: 100 },
+      workplace_address: { municipality: "Strängnäs", region: "Södermanlands län", country: "Sverige" },
+    });
+
+    expect(job).toMatchObject({
+      id: "summary",
+      slug: "kurator-med-mojlighet-till-distansarbete",
+      employerName: "Exempelkommunen",
+      employmentType: "Tills vidare",
+      duration: "Tillsvidare",
+      workingHours: "Heltid",
+      scopeMin: 100,
+      scopeMax: 100,
+      remote: true,
+      publishedAt: "2099-07-20T10:00:00",
+      expiresAt: "2099-09-06T23:59:59",
+    });
+    expect(job?.locations[0]?.municipality).toBe("Strängnäs");
+    expect(job).not.toHaveProperty("descriptionHtml");
+    expect(job).not.toHaveProperty("descriptionText");
+  });
+
+  it("rejects invalid source URLs and expired summaries", () => {
+    expect(mapJobtechAdSummary({
+      id: "invalid-url",
+      headline: "Kurator",
+      webpage_url: "javascript:alert(1)",
+      publication_date: "2099-01-01T10:00:00",
+    })).toBeNull();
+
+    expect(mapJobtechAdSummary({
+      id: "expired-summary",
+      headline: "Kurator",
+      webpage_url: "https://arbetsformedlingen.se/platsbanken/annonser/expired-summary",
+      publication_date: "2020-01-01T10:00:00",
+      application_deadline: "2020-01-31",
+    })).toBeNull();
+  });
+});
+
+describe("mapJobtechSitemapJob", () => {
+  it("maps only the canonical sitemap data", () => {
+    const job = mapJobtechSitemapJob({
+      id: "sitemap",
+      headline: "Socialsekreterare barn och unga",
+      publication_date: "2099-01-01T10:00:00",
+      application_deadline: "2099-02-01T23:59:59",
+      timestamp: 4_102_444_800_000,
+    });
+
+    expect(job).toEqual({
+      id: "sitemap",
+      slug: "socialsekreterare-barn-och-unga",
+      sourceUpdatedAt: "2100-01-01T00:00:00.000Z",
+    });
   });
 });

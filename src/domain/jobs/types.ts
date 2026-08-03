@@ -39,6 +39,28 @@ export type Job = {
   vacancies?: number;
 };
 
+export type JobSummary = Pick<
+  Job,
+  | "id"
+  | "source"
+  | "slug"
+  | "title"
+  | "employerName"
+  | "locations"
+  | "employmentType"
+  | "duration"
+  | "workingHours"
+  | "scopeMin"
+  | "scopeMax"
+  | "remote"
+  | "publishedAt"
+  | "expiresAt"
+>;
+
+export type SitemapJob = Pick<Job, "id" | "slug"> & {
+  sourceUpdatedAt: string;
+};
+
 export type JobSearchFilters = {
   query?: string;
   occupationGroupIds?: string[];
@@ -51,7 +73,7 @@ export type JobSearchFilters = {
 };
 
 export type JobSearchResult = {
-  jobs: Job[];
+  jobs: JobSummary[];
   total: number;
   page: number;
   pageSize: number;

@@ -2,6 +2,40 @@ import { AlertIcon, ArrowRightIcon } from "./icons";
 import { TrackedLink, ZeroResultsTracker } from "./AnalyticsEvents";
 import Link from "next/link";
 
+export function JobResultsSkeleton() {
+  return (
+    <div aria-busy="true" aria-live="polite" className="job-results-loading">
+      <div className="results-heading">
+        <h2>Lediga jobb</h2>
+        <p>Hämtar aktuella jobb…</p>
+      </div>
+      <div aria-hidden="true" className="job-list">
+        {Array.from({ length: 3 }, (_, index) => (
+          <div className="job-card job-card-skeleton" key={index}>
+            <div className="skeleton-topline">
+              <span className="skeleton-line skeleton-badge" />
+              <span className="skeleton-line skeleton-source" />
+            </div>
+            <div>
+              <span className="skeleton-line skeleton-title" />
+              <span className="skeleton-line skeleton-employer" />
+            </div>
+            <div className="skeleton-meta">
+              <span className="skeleton-line" />
+              <span className="skeleton-line" />
+              <span className="skeleton-line" />
+            </div>
+            <div className="skeleton-footer">
+              <span className="skeleton-line" />
+              <span className="skeleton-line" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function EmptyJobsState() {
   return (
     <div className="state-card">

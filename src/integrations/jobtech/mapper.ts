@@ -1,5 +1,5 @@
 import sanitizeHtml from "sanitize-html";
-import type { Job, JobLocation } from "@/domain/jobs/types";
+import type { Job, JobLocation, JobSummary, SitemapJob } from "@/domain/jobs/types";
 import { isApplicationDeadlinePassed } from "@/domain/jobs/rules";
 import { slugify } from "@/lib/slug";
 import type { JobtechAd } from "./types";
@@ -131,5 +131,56 @@ export function mapJobtechAd(ad: JobtechAd): Job | null {
     sourceUrl,
     sourceUpdatedAt: ad.timestamp ? new Date(ad.timestamp).toISOString() : publishedAt,
     vacancies: ad.number_of_vacancies ?? undefined,
+  };
+}
+
+export function mapJobtechAdSummary(ad: JobtechAd): JobSummary | null {
+  const id = ad.id?.trim();
+  const title = ad.headline?.trim();
+  const publishedAt = ad.publication_date?.trim();
+  const expiresAt = ad.application_deadline?.trim() || undefined;
+
+  if (
+    !id
+    || !title
+    || !publishedAt
+    || !safeHttpUrl(ad.webpage_url)
+    || ad.removed
+    || isApplicationDeadlinePassed(expiresAt)
+  ) return null;
+
+  const employerName = ad.employer?.name?.trim() || ad.employer?.workplace?.trim() || "Arbetsgivare ej angiven";
+  const remoteSearchText = ad.description?.text?.trim() ?? "";
+
+  return {
+    id,
+    source: "arbetsformedlingen",
+    slug: slugify(title),
+    title,
+    employerName,
+    locations: [mapLocation(ad)],
+    employmentType: ad.employment_type?.label ?? undefined,
+    duration: ad.duration?.label ?? undefined,
+    workingHours: ad.working_hours_type?.label ?? undefined,
+    scopeMin: ad.scope_of_work?.min ?? undefined,
+    scopeMax: ad.scope_of_work?.max ?? undefined,
+    remote: ad.remote ?? REMOTE_PATTERN.test(`${title} ${remoteSearchText}`),
+    publishedAt,
+    expiresAt,
+  };
+}
+
+export function mapJobtechSitemapJob(ad: JobtechAd): SitemapJob | null {
+  const id = ad.id?.trim();
+  const title = ad.headline?.trim();
+  const publishedAt = ad.publication_date?.trim();
+  const expiresAt = ad.application_deadline?.trim() || undefined;
+
+  if (!id || !title || !publishedAt || ad.removed || isApplicationDeadlinePassed(expiresAt)) return null;
+
+  return {
+    id,
+    slug: slugify(title),
+    sourceUpdatedAt: ad.timestamp ? new Date(ad.timestamp).toISOString() : publishedAt,
   };
 }

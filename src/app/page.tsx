@@ -26,7 +26,7 @@ export default async function HomePage() {
           <div className="hero-copy">
             <span className="eyebrow">Jobb inom socialt arbete</span>
             <h1>Hitta nästa jobb som socionom</h1>
-            <p>Samlad och aktuell jobbsökning för dig som arbetar med människor, förändring och socialt arbete.</p>
+            <p>Aktuella och relevanta socionomjobb från hela Sverige – samlade på ett ställe.</p>
           </div>
           <SearchForm variant="hero" />
           <div className="trust-line" aria-label="Om tjänsten">

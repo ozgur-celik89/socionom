@@ -239,3 +239,5 @@ src/
 Den bästa starten är en enda Next.js-applikation utan databas. Den hämtar data från JobSearch på serversidan och använder cache för prestanda och stabilitet.
 
 Samtidigt bör API-integrationen isoleras bakom ett eget datalager och ett normaliserat jobbformat. Då kan socionom.se senare lägga till PostgreSQL, JobStream och egna betalda annonser stegvis, utan att den första versionen blir onödigt dyr eller behöver kastas bort.
+
+JobSearch-svar ska anpassas efter användningen: listor hämtar endast fälten som behövs för jobbkort och mappas till en lätt sammanfattning, individuella jobbsidor hämtar hela annonsen och sitemap använder ett separat minimalt svar. Extern HTML saneras därför endast när den fullständiga annonsen faktiskt ska visas.

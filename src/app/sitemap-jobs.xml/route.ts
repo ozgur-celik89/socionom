@@ -1,10 +1,10 @@
 import { siteConfig } from "@/config/site";
-import type { Job } from "@/domain/jobs/types";
+import type { SitemapJob } from "@/domain/jobs/types";
 import { getJobsForSitemap } from "@/integrations/jobtech/search";
 import { escapeXml, xmlResponse } from "@/lib/xml";
 
 export async function GET() {
-  let jobs: Job[];
+  let jobs: SitemapJob[];
 
   try {
     jobs = await getJobsForSitemap();
@@ -27,5 +27,7 @@ ${jobs.map((job) => {
   }).join("\n")}
 </urlset>`;
 
-  return xmlResponse(xml);
+  return xmlResponse(xml, {
+    cacheControl: "public, s-maxage=3600, stale-while-revalidate=86400",
+  });
 }
