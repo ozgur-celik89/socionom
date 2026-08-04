@@ -63,7 +63,6 @@ export function EmployerCallout() {
   return (
     <aside className="employer-callout">
       <div>
-        <span className="eyebrow">För arbetsgivare</span>
         <h2>Nå Sveriges socionomer</h2>
         <p>Vill ni synas för en relevant och yrkesinriktad målgrupp? Berätta om era rekryteringsbehov.</p>
       </div>

@@ -24,7 +24,6 @@ export default async function HomePage() {
       <section className="home-hero">
         <div className="site-container hero-content">
           <div className="hero-copy">
-            <span className="eyebrow">Jobb inom socialt arbete</span>
             <h1>Hitta nästa jobb som socionom</h1>
             <p>Aktuella och relevanta socionomjobb från hela Sverige – samlade på ett ställe.</p>
           </div>
@@ -53,7 +52,6 @@ export default async function HomePage() {
         <div className="site-container">
           <div className="section-header">
             <div>
-              <span className="eyebrow">Nyligen publicerat</span>
               <h2>Senaste socionomjobben</h2>
               <p>Ett urval av de senast publicerade socionomjobben.</p>
             </div>
@@ -67,7 +65,6 @@ export default async function HomePage() {
         <div className="site-container">
           <div className="section-header">
             <div>
-              <span className="eyebrow">Jobb nära dig</span>
               <h2>Sök efter region</h2>
             </div>
             <Link className="text-link" href="/lediga-jobb">Sök i hela Sverige <ArrowRightIcon /></Link>

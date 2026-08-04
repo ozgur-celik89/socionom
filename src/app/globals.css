@@ -37,6 +37,9 @@
 
 html {
   scroll-behavior: smooth;
+  /* Headern är sticky, så ankarlänkar måste stanna under den i stället för
+     att lägga målet bakom headern. */
+  scroll-padding-top: calc(var(--header-height) + 1rem);
 }
 
 body {
@@ -284,16 +287,6 @@ summary {
   align-items: center;
   display: flex;
   gap: 0.65rem;
-}
-
-.eyebrow {
-  color: var(--color-primary);
-  display: inline-block;
-  font-size: 0.77rem;
-  font-weight: 800;
-  letter-spacing: 0.11em;
-  margin-bottom: 0.8rem;
-  text-transform: uppercase;
 }
 
 .home-hero {

@@ -81,7 +81,6 @@ export default async function JobDetailPage({ params }: Props) {
           <div className="job-detail-grid">
             <article className="job-detail">
               <header className="job-detail-header">
-                <span className="eyebrow">Ledigt jobb</span>
                 <h1>{job.title}</h1>
                 <p className="job-detail-employer">{job.employerName}</p>
                 <ul className="job-meta" aria-label="Sammanfattning av jobbet">
@@ -122,7 +121,6 @@ export default async function JobDetailPage({ params }: Props) {
             <section aria-labelledby="related-jobs-title" className="related-jobs">
               <div className="section-header">
                 <div>
-                  <span className="eyebrow">Fler aktuella tjänster</span>
                   <h2 id="related-jobs-title">Liknande jobb</h2>
                 </div>
               </div>
