@@ -10,17 +10,34 @@ export function JobCard({ job }: { job: JobSummary }) {
     : location?.municipality ?? location?.region ?? "Sverige";
   const scope = formatScope(job.scopeMin, job.scopeMax);
   const jobHref = `/lediga-jobb/${job.id}/${job.slug}`;
+  const recentlyPublished = isRecentlyPublished(job.publishedAt);
 
   return (
     <article className="job-card">
-      <div className="job-card-topline">
-        {isRecentlyPublished(job.publishedAt) ? <span className="badge badge-new">Nytt</span> : <span />}
-        <span className="source-label">Arbetsförmedlingen</span>
-      </div>
+      {recentlyPublished && (
+        <div className="job-card-topline">
+          <span className="badge badge-new">Nytt</span>
+        </div>
+      )}
 
-      <div>
-        <h2><Link href={jobHref}>{job.title}</Link></h2>
-        <p className="job-employer">{job.employerName}</p>
+      <div className="job-card-heading">
+        <div className="job-card-heading-text">
+          <h2><Link href={jobHref}>{job.title}</Link></h2>
+          <p className="job-employer">{job.employerName}</p>
+        </div>
+        {job.logoUrl && (
+          // Logotypen laddas direkt från källan för att undvika Vercels bildoptimering.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            alt=""
+            className="job-card-logo"
+            decoding="async"
+            height="36"
+            loading="lazy"
+            src={job.logoUrl}
+            width="88"
+          />
+        )}
       </div>
 
       <ul className="job-meta" aria-label="Jobbinformation">

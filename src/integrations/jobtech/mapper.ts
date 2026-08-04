@@ -158,6 +158,7 @@ export function mapJobtechAdSummary(ad: JobtechAd): JobSummary | null {
     slug: slugify(title),
     title,
     employerName,
+    logoUrl: safeHttpUrl(ad.logo_url),
     locations: [mapLocation(ad)],
     employmentType: ad.employment_type?.label ?? undefined,
     duration: ad.duration?.label ?? undefined,

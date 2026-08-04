@@ -16,6 +16,7 @@ describe("core occupation selection", () => {
     expect(excludedOccupationNameIds).toEqual([
       "NSEG_DmQ_waj",
       "KJoL_2hp_Sa5",
+      "Vq8N_Qvz_i4u",
     ]);
   });
 });

@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!job) return { title: "Jobbet finns inte", robots: { index: false, follow: true } };
 
   const location = job.locations[0]?.municipality ?? job.locations[0]?.region ?? "Sverige";
-  const description = `${job.title} hos ${job.employerName} i ${location}. Läs annonsen och ansök via Arbetsförmedlingen.`;
+  const description = `${job.title} hos ${job.employerName} i ${location}. Läs annonsen och ansök till tjänsten.`;
 
   return {
     title: `${job.title} hos ${job.employerName}`,
@@ -91,7 +91,7 @@ export default async function JobDetailPage({ params }: Props) {
                 </ul>
                 <div className="job-mobile-apply">
                   <ApplyButton href={job.applyUrl} jobId={job.id} />
-                  <p className="apply-note">Ansökan öppnas hos Arbetsförmedlingen eller arbetsgivaren.</p>
+                  <p className="apply-note">Ansökan öppnas hos arbetsgivaren eller, om direktlänk saknas, hos Arbetsförmedlingen.</p>
                 </div>
               </header>
               <div className="job-detail-body">
@@ -103,7 +103,7 @@ export default async function JobDetailPage({ params }: Props) {
             <aside className="job-sidebar" aria-label="Fakta och ansökan">
               <div className="job-sidebar-card job-sidebar-apply">
                 <ApplyButton href={job.applyUrl} jobId={job.id} />
-                <p className="apply-note">Ansökan öppnas hos Arbetsförmedlingen eller arbetsgivaren.</p>
+                <p className="apply-note">Ansökan öppnas hos arbetsgivaren eller, om direktlänk saknas, hos Arbetsförmedlingen.</p>
               </div>
               <div className="job-sidebar-card">
                 <h2>Om tjänsten</h2>
@@ -115,9 +115,6 @@ export default async function JobDetailPage({ params }: Props) {
                   {(job.duration || job.employmentType) && <li><BriefcaseIcon /><span><strong>Anställning</strong>{[job.employmentType, job.duration].filter(Boolean).join(" · ")}</span></li>}
                   {job.vacancies && <li><BriefcaseIcon /><span><strong>Antal tjänster</strong>{job.vacancies}</span></li>}
                 </ul>
-              </div>
-              <div className="source-box">
-                Annonsen kommer från Arbetsförmedlingens öppna data. <a href={job.sourceUrl} rel="noopener noreferrer" target="_blank">Visa originalannonsen</a>.
               </div>
             </aside>
           </div>

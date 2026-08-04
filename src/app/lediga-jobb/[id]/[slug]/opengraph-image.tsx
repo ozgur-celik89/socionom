@@ -67,7 +67,7 @@ export default async function JobOpengraphImage({ params }: Props) {
             Ledigt jobb
           </div>
           <div style={{ display: "flex", fontSize: 24, color: brandColors.sage }}>
-            Ansök via Arbetsförmedlingen
+            Ansök till tjänsten
           </div>
         </div>
       </div>

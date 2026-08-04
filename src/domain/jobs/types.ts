@@ -46,6 +46,7 @@ export type JobSummary = Pick<
   | "slug"
   | "title"
   | "employerName"
+  | "logoUrl"
   | "locations"
   | "employmentType"
   | "duration"

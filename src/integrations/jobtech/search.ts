@@ -1,5 +1,6 @@
 import type { JobSearchFilters, JobSearchResult, SitemapJob } from "@/domain/jobs/types";
 import { coreOccupationGroupIds, excludedOccupationNameIds } from "@/config/jobs";
+import { hasMeaningfulJobTitle } from "@/domain/jobs/relevance";
 import { isApplicationDeadlinePassed } from "@/domain/jobs/rules";
 import { slugify } from "@/lib/slug";
 import { mapJobtechAd, mapJobtechAdSummary, mapJobtechSitemapJob } from "./mapper";
@@ -14,7 +15,7 @@ const CORE_OCCUPATION_GROUP_ID_SET = new Set<string>(coreOccupationGroupIds);
 const EXCLUDED_OCCUPATION_NAME_ID_SET = new Set<string>(excludedOccupationNameIds);
 const SEARCH_RESULT_FIELDS = [
   "total{value}",
-  "hits{id,webpage_url,headline,application_deadline,description{text},employment_type{label},duration{label},working_hours_type{label},scope_of_work{min,max},employer{name,workplace},occupation{concept_id},occupation_group{concept_id},workplace_address{municipality,municipality_concept_id,region,region_concept_id,country,country_code,city},publication_date,removed}",
+  "hits{id,webpage_url,logo_url,headline,application_deadline,description{text},employment_type{label},duration{label},working_hours_type{label},scope_of_work{min,max},employer{name,workplace},occupation{concept_id},occupation_group{concept_id},workplace_address{municipality,municipality_concept_id,region,region_concept_id,country,country_code,city},publication_date,removed}",
 ].join(",");
 const SITEMAP_RESULT_FIELDS = [
   "total{value}",
@@ -37,6 +38,8 @@ function matchesApprovedJobSelection(ad: JobtechAd) {
   const occupationNameId = ad.occupation?.concept_id?.trim();
 
   return Boolean(
+    hasMeaningfulJobTitle(ad.headline)
+    &&
     occupationGroupId
     && CORE_OCCUPATION_GROUP_ID_SET.has(occupationGroupId)
     && (!occupationNameId || !EXCLUDED_OCCUPATION_NAME_ID_SET.has(occupationNameId)),

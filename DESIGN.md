@@ -217,7 +217,11 @@ Varje jobbkort ska visa:
 - publiceringsdatum
 - sista ansökningsdag när den finns
 - eventuell distansmarkering
-- tydlig källa
+- arbetsgivarens logotyp när den finns i källdatan
+
+Datakällan ska inte upprepas på varje jobbkort eller individuell jobbsida. Den förklaras tydligt i sidfoten och på webbplatsens informationssidor.
+
+Arbetsgivarens logotyp placeras diskret uppe till höger på kortet, där den inte konkurrerar med jobbtiteln. Logotypens yta har fasta mått och bilden skalas proportionerligt utan beskärning. När logotyp saknas visas ingen platshållare.
 
 Exempel:
 

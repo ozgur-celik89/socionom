@@ -55,7 +55,7 @@ export default async function HomePage() {
             <div>
               <span className="eyebrow">Nyligen publicerat</span>
               <h2>Senaste socionomjobben</h2>
-              <p>Ett urval av de senast publicerade jobben från Arbetsförmedlingen.</p>
+              <p>Ett urval av de senast publicerade socionomjobben.</p>
             </div>
             <Link className="text-link" href="/lediga-jobb">Visa alla jobb <ArrowRightIcon /></Link>
           </div>

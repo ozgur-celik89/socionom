@@ -28,6 +28,7 @@
   --radius-small: 8px;
   --radius-medium: 12px;
   --radius-large: 16px;
+  --header-height: 76px;
 }
 
 * {
@@ -120,7 +121,7 @@ summary {
 .header-inner {
   align-items: center;
   display: flex;
-  height: 76px;
+  height: var(--header-height);
   justify-content: space-between;
 }
 
@@ -185,25 +186,39 @@ summary {
   display: none;
 }
 
+/* Panelen läggs i full bredd direkt under headern, som en vanlig mobilmeny. */
 .mobile-menu nav {
+  animation: mobile-menu-in 160ms ease-out;
   background: var(--color-shell);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: var(--radius-medium);
-  box-shadow: var(--shadow-soft);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 14px 30px rgba(10, 20, 17, 0.28);
   display: grid;
-  min-width: 220px;
-  padding: 0.6rem;
-  position: absolute;
+  left: 0;
+  max-height: calc(100vh - var(--header-height));
+  overflow-y: auto;
+  padding: 0.35rem 0 0.75rem;
+  position: fixed;
   right: 0;
-  top: 2.25rem;
+  top: var(--header-height);
+}
+
+@keyframes mobile-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
 }
 
 .mobile-menu nav a {
-  border-radius: 8px;
+  font-size: 1.05rem;
   font-weight: 650;
-  padding: 0.8rem;
+  padding: 1.05rem 1.25rem;
   text-decoration: none;
   color: #d7e3df;
+}
+
+.mobile-menu nav a + a {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .mobile-menu nav a:hover {
@@ -656,6 +671,9 @@ summary {
 .job-list {
   display: grid;
   gap: 0.85rem;
+  /* Ett auto-spår har min-content som golv, vilket låter breda kort spilla ut
+     ur listan på smala skärmar. minmax(0, 1fr) tar bort det golvet. */
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .job-results-loading {
@@ -736,6 +754,9 @@ summary {
   border-radius: var(--radius-medium);
   display: grid;
   gap: 1rem;
+  /* Som .job-list: utan detta får kortets rader min-content som golv och
+     spiller ut ur kortet på smala skärmar. */
+  grid-template-columns: minmax(0, 1fr);
   padding: 1.35rem;
   transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
@@ -751,6 +772,30 @@ summary {
   align-items: center;
   display: flex;
   justify-content: space-between;
+}
+
+/* Logotypen ligger alltid bredvid rubriken, oavsett om Nytt-badgen finns,
+   så att den hamnar på samma plats i alla kort. */
+.job-card-heading {
+  align-items: flex-start;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.job-card-heading-text {
+  min-width: 0;
+  /* Långa sammansatta yrkestitlar saknar brytpunkter och spiller annars ut
+     ur kortet på smala skärmar. */
+  overflow-wrap: break-word;
+}
+
+.job-card-logo {
+  flex: none;
+  height: 36px;
+  object-fit: contain;
+  object-position: right top;
+  width: 88px;
 }
 
 .job-card-dates {
@@ -785,11 +830,6 @@ summary {
 .badge-new {
   background: var(--color-accent);
   color: var(--color-accent-text);
-}
-
-.source-label {
-  color: var(--color-text-muted);
-  font-size: 0.76rem;
 }
 
 .job-card h2 {
@@ -1157,21 +1197,6 @@ summary {
   text-align: center;
 }
 
-.source-box {
-  background: var(--color-surface-green);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-medium);
-  color: #4c5a55;
-  font-size: 0.82rem;
-  line-height: 1.6;
-  padding: 1rem;
-}
-
-.source-box a {
-  color: var(--color-primary-hover);
-  font-weight: 700;
-}
-
 .content-page {
   padding: 3.5rem 0 5rem;
 }
@@ -1418,8 +1443,8 @@ summary {
     padding-inline: 1rem;
   }
 
-  .header-inner {
-    height: 66px;
+  :root {
+    --header-height: 66px;
   }
 
   .home-hero {
@@ -1518,6 +1543,11 @@ summary {
     padding: 1.1rem;
   }
 
+  .job-card-logo {
+    height: 30px;
+    width: 68px;
+  }
+
   .job-results-loading {
     min-height: 470px;
   }
@@ -1589,6 +1619,7 @@ summary {
   *,
   *::before,
   *::after {
+    animation-duration: 0.01ms !important;
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
   }

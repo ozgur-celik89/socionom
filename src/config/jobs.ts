@@ -29,7 +29,14 @@ export const excludedOccupationNameIds = [
   // Ersättningskedjan för Personligt ombud drar även in bland annat
   // kundansvariga inom personlig assistans och annonser för familjehem.
   "KJoL_2hp_Sa5",
+  "Vq8N_Qvz_i4u", // Integrationshandläggare
 ];
+
+// Kontrollera alltid deprecated och replaced_by i taxonomin innan en benämning
+// läggs till ovan. En avvecklad benämning exkluderar hela sin ersättningskedja,
+// vilket lätt tar med kärnyrken. Exempel: Ungdomsassistent (dPjj_QXm_fHR) och
+// Rehabiliteringsassistent (Qgk2_se1_PZR) ersätts båda av
+// Behandlingsassistent/Socialpedagog och tömmer därmed den yrkesgruppen.
 
 export const occupationCategories: OccupationCategory[] = [
   {

@@ -54,6 +54,7 @@ describe("JobSearch request", () => {
     expect((requestedUrl as URL).searchParams.getAll("occupation-name")).toEqual([
       "-NSEG_DmQ_waj",
       "-KJoL_2hp_Sa5",
+      "-Vq8N_Qvz_i4u",
     ]);
 
     const requestOptions = fetchMock.mock.calls[0]?.[1] as { headers?: Record<string, string> };
@@ -101,6 +102,24 @@ describe("JobSearch request", () => {
     expect(result.jobs[0]?.id).toBe("123");
   });
 
+  it("rejects placeholder titles without rejecting unusual real titles", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        total: { value: 2 },
+        hits: [
+          validAd({ id: "placeholder", headline: "Standard" }),
+          validAd({ id: "real", headline: "Vi söker en Arbetsledare!" }),
+        ],
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await searchJobs();
+
+    expect(result.jobs.map((job) => job.id)).toEqual(["real"]);
+  });
+
   it("does not expose individual ads outside the approved core selection", async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce({
@@ -113,7 +132,7 @@ describe("JobSearch request", () => {
       })
       .mockResolvedValueOnce({
         ok: true,
-        json: async () => validAd({ occupationGroupId: "other-group" }),
+        json: async () => validAd({ headline: "Standard" }),
       });
     vi.stubGlobal("fetch", fetchMock);
 
@@ -166,6 +185,24 @@ describe("JobSearch request", () => {
     expect(firstOptions.headers?.["X-Fields"]).not.toContain("description");
     expect(firstOptions.next?.revalidate).toBe(3600);
     expect(secondUrl.searchParams.get("offset")).toBe("100");
+  });
+
+  it("keeps placeholder titles out of the sitemap", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        total: { value: 2 },
+        hits: [
+          validAd({ id: "placeholder", headline: "Standard" }),
+          validAd({ id: "real", headline: "Kurator till ungdomsmottagning" }),
+        ],
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const jobs = await getJobsForSitemap();
+
+    expect(jobs.map((job) => job.id)).toEqual(["real"]);
   });
 
 });

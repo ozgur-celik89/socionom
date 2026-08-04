@@ -140,7 +140,7 @@ Google kräver att utgångna jobb tas bort eller markeras korrekt och rekommende
 
 Annonsbeskrivningar är externt innehåll. HTML från API:t måste därför saneras innan den visas för att förhindra XSS och trasig layout.
 
-Sidan ska också vara tydlig med att annonserna kommer från Arbetsförmedlingens öppna data och får inte ge intryck av att socionom.se är en del av eller officiellt godkänd av Arbetsförmedlingen.
+Webbplatsen ska genom sidfoten och informationssidorna vara tydlig med att annonserna kommer från Arbetsförmedlingens öppna data och får inte ge intryck av att socionom.se är en del av eller officiellt godkänd av Arbetsförmedlingen. Informationen behöver inte upprepas på varje jobbkort eller individuell jobbsida.
 
 ## När behövs en databas?
 
@@ -241,3 +241,7 @@ Den bästa starten är en enda Next.js-applikation utan databas. Den hämtar dat
 Samtidigt bör API-integrationen isoleras bakom ett eget datalager och ett normaliserat jobbformat. Då kan socionom.se senare lägga till PostgreSQL, JobStream och egna betalda annonser stegvis, utan att den första versionen blir onödigt dyr eller behöver kastas bort.
 
 JobSearch-svar ska anpassas efter användningen: listor hämtar endast fälten som behövs för jobbkort och mappas till en lätt sammanfattning, individuella jobbsidor hämtar hela annonsen och sitemap använder ett separat minimalt svar. Extern HTML saneras därför endast när den fullständiga annonsen faktiskt ska visas.
+
+Relevansurvalet använder verifierade JobTech-grupper tillsammans med negativa `occupation-name`-filter för närliggande roller som inte normalt är socionomjobb. Det bevarar JobSearch-resultatens antal och pagination. Uppenbara platshållartitlar filtreras dessutom lokalt med samma deterministiska regel för jobblistor, individuella jobbsidor och sitemap; ovanliga men riktiga titlar ska inte avvisas enbart på formuleringen.
+
+Arbetsgivarlogotyper i jobbkort hämtas via JobSearch-fältet `logo_url` och laddas direkt från Arbetsförmedlingens domän med lazy loading och fasta bildmått. De ska inte gå genom Vercels bildoptimering i MVP:n, eftersom det skulle skapa extra bildtransformationer och CPU-användning för ett begränsat visuellt värde.

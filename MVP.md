@@ -210,9 +210,13 @@ Varje kort visar när datan finns:
 - omfattning
 - publiceringsdatum
 - sista ansökningsdag
-- källa
+- arbetsgivarens logotyp när den finns i JobSearch
 
 Kortet ska ha en tydlig länk till den interna jobbsidan. Hela kortet får vara klickbart om semantik, tangentbordsstöd och textmarkering fortfarande fungerar korrekt.
+
+Datakällan ska inte upprepas på jobbkort, ovanför jobblistan eller på varje individuell jobbsida. Den förklaras i sidfoten och på webbplatsens informationssidor.
+
+Logotyper ska ha fasta bildmått, behålla sina proportioner och laddas först när de närmar sig användarens synliga område. När logotyp saknas visas ingen platshållare.
 
 Etiketten `Nytt` används för jobb som publicerats inom en konfigurerbar kort period. Den ska ha puderrosa bakgrund och mörk gammelrosa text enligt `DESIGN.md`.
 
@@ -237,8 +241,9 @@ Etiketten `Nytt` används för jobb som publicerats inom en konfigurerbar kort p
 - fullständig sanerad beskrivning
 - tydlig primär knapp `Ansök`
 - information om att ansökan sker på extern webbplats
-- källa Arbetsförmedlingen
 - relaterade aktiva jobb
+
+Jobbsidan ska inte ha en separat källruta eller länk till originalannonsen. `Ansök` leder till arbetsgivarens ansökningssida när den finns och använder annars annonsens käll-URL som reserv.
 
 ### Beteende
 
@@ -303,6 +308,7 @@ Ett jobb kan inkluderas när minst ett av följande gäller:
 Ett jobb ska kunna exkluderas när:
 
 - yrkestiteln har en annan betydelse
+- originaltiteln är en uppenbar platshållare, exempelvis `Standard`, `Annons` eller `Ledig tjänst`
 - annonsen uppenbart riktar sig till en annan yrkesgrupp
 - den endast avser praktik, examensarbete eller utbildningsplats och detta inte är en avsiktlig kategori
 - annonsen saknar tillräcklig information för en riktig ansökan
@@ -310,6 +316,8 @@ Ett jobb ska kunna exkluderas när:
 ### Kvalitetskontroll
 
 Före lansering ska minst 200 representativa sökresultat granskas manuellt och klassas som relevanta eller irrelevanta. Reglerna justeras tills resultatet är tillräckligt träffsäkert för att inge förtroende.
+
+Säkra yrkesundantag ska i första hand skickas till JobSearch som negativa `occupation-name`-filter så att API:ts resultatantal och pagination fortsätter vara korrekta. En liten lokal kvalitetsregel får användas för uppenbart trasiga originaltitlar och ska då tillämpas konsekvent på listor, jobbsidor och sitemap.
 
 ## Geografiskt urval
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { mainNavigation } from "@/config/site";
 import { Logo } from "./Logo";
-import { MenuIcon } from "./icons";
+import { MobileMenu } from "./MobileMenu";
 
 export function Header() {
   return (
@@ -20,20 +20,7 @@ export function Header() {
           </Link>
         </nav>
 
-        <details className="mobile-menu">
-          <summary aria-label="Öppna meny">
-            <MenuIcon />
-            <span>Meny</span>
-          </summary>
-          <nav aria-label="Mobilnavigation">
-            {mainNavigation.map((item) => (
-              <Link href={item.href} key={item.href}>
-                {item.label}
-              </Link>
-            ))}
-            <Link href="/annonsera">Annonsera</Link>
-          </nav>
-        </details>
+        <MobileMenu />
       </div>
     </header>
   );
