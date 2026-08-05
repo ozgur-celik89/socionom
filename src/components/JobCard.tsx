@@ -1,9 +1,17 @@
-import Link from "next/link";
 import type { JobSummary } from "@/domain/jobs/types";
 import { formatDate, formatPublishedDate, formatScope, isRecentlyPublished } from "@/lib/format";
 import { ArrowRightIcon, BriefcaseIcon, CalendarIcon, ClockIcon, MapPinIcon } from "./icons";
+import { TrackedJobLink, type JobCardAnalyticsContext } from "./TrackedJobLink";
 
-export function JobCard({ job }: { job: JobSummary }) {
+export function JobCard({
+  analyticsContext,
+  job,
+  position,
+}: {
+  analyticsContext: JobCardAnalyticsContext;
+  job: JobSummary;
+  position: number;
+}) {
   const location = job.locations[0];
   const locationLabel = job.remote
     ? `${location?.municipality ?? location?.region ?? "Sverige"} · Distans möjlig`
@@ -22,7 +30,16 @@ export function JobCard({ job }: { job: JobSummary }) {
 
       <div className="job-card-heading">
         <div className="job-card-heading-text">
-          <h2><Link href={jobHref}>{job.title}</Link></h2>
+          <h2>
+            <TrackedJobLink
+              analyticsContext={analyticsContext}
+              href={jobHref}
+              linkLocation="title"
+              position={position}
+            >
+              {job.title}
+            </TrackedJobLink>
+          </h2>
           <p className="job-employer">{job.employerName}</p>
         </div>
         {job.logoUrl && (
@@ -51,9 +68,16 @@ export function JobCard({ job }: { job: JobSummary }) {
           <span>{formatPublishedDate(job.publishedAt)}</span>
           {job.expiresAt && <span><CalendarIcon /> Ansök senast {formatDate(job.expiresAt)}</span>}
         </div>
-        <Link aria-label={`Visa jobbet ${job.title}`} className="job-card-link" href={jobHref}>
+        <TrackedJobLink
+          analyticsContext={analyticsContext}
+          ariaLabel={`Visa jobbet ${job.title}`}
+          className="job-card-link"
+          href={jobHref}
+          linkLocation="card_cta"
+          position={position}
+        >
           Visa jobbet <ArrowRightIcon />
-        </Link>
+        </TrackedJobLink>
       </div>
     </article>
   );

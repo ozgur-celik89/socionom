@@ -34,9 +34,27 @@ async function SearchResults({
     result = null;
   }
 
+  const analyticsSort = filters.sort === "relevance"
+    ? "relevans" as const
+    : filters.sort === "applydate-asc"
+      ? "deadline" as const
+      : "senaste" as const;
+
   return result ? (
     <JobResults
+      analyticsContext={{
+        source: "search_results",
+        occupation: filters.occupation?.slug,
+        region: filters.region?.slug,
+        sort: analyticsSort,
+      }}
       basePath="/lediga-jobb"
+      headingContext={{
+        query: filters.query,
+        occupationLabel: filters.occupation?.shortLabel,
+        regionLabel: filters.region?.shortLabel,
+        remote: filters.remote,
+      }}
       paginationParams={paginationParams}
       result={result}
     />

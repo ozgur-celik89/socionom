@@ -2,25 +2,63 @@ import type { JobSearchResult } from "@/domain/jobs/types";
 import { JobList } from "./JobList";
 import { Pagination } from "./Pagination";
 import { EmptyJobsState } from "./States";
+import type { JobCardAnalyticsContext } from "./TrackedJobLink";
+
+export type JobResultsHeadingContext = {
+  query?: string;
+  occupationLabel?: string;
+  regionLabel?: string;
+  remote?: boolean;
+};
+
+function roleInSentence(label: string) {
+  if (/^[A-ZÅÄÖ]{2,}(?:-|$)/.test(label)) return label;
+  return `${label.charAt(0).toLocaleLowerCase("sv-SE")}${label.slice(1)}`;
+}
+
+export function getJobResultsHeading(total: number, context: JobResultsHeadingContext = {}) {
+  const count = total.toLocaleString("sv-SE");
+  const region = context.regionLabel ? ` i ${context.regionLabel}` : "";
+
+  if (context.query) return `${count} jobb för ”${context.query}”${region}`;
+
+  if (context.occupationLabel) {
+    const jobs = total === 1 ? "ledigt jobb" : "lediga jobb";
+    return `${count} ${jobs} som ${roleInSentence(context.occupationLabel)}${region}`;
+  }
+
+  if (context.regionLabel) {
+    const jobs = total === 1 ? "ledigt socionomjobb" : "lediga socionomjobb";
+    return `${count} ${jobs}${region}`;
+  }
+
+  if (context.remote) return `${count} socionomjobb med möjlighet till distans`;
+
+  const jobs = total === 1 ? "ledigt socionomjobb" : "lediga socionomjobb";
+  return `${count} ${jobs}`;
+}
 
 export function JobResults({
   result,
   basePath,
   paginationParams,
+  headingContext,
+  analyticsContext,
 }: {
   result: JobSearchResult;
   basePath: string;
   paginationParams?: URLSearchParams;
+  headingContext?: JobResultsHeadingContext;
+  analyticsContext: JobCardAnalyticsContext;
 }) {
   return (
     <>
       <div className="results-heading">
-        <h2>Lediga jobb</h2>
-        <p>{result.total.toLocaleString("sv-SE")} träffar</p>
+        <h2>{getJobResultsHeading(result.total, headingContext)}</h2>
       </div>
       {result.jobs.length > 0 ? (
         <>
-          <JobList jobs={result.jobs} />
+          <JobList analyticsContext={analyticsContext} jobs={result.jobs} />
           <Pagination
             basePath={basePath}
             currentPage={result.page}

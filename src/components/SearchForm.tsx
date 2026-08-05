@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { occupationCategories, workingHoursOptions } from "@/config/jobs";
 import { regions } from "@/config/regions";
+import { getSearchAnalyticsProperties } from "@/lib/analytics";
 import { ChevronDownIcon, SearchIcon } from "./icons";
 
 export type SearchFormValues = {
@@ -43,16 +44,18 @@ export function SearchForm({
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     const data = new FormData(event.currentTarget);
-    const filterCount = ["yrke", "region", "anstallning", "distans"]
-      .filter((key) => Boolean(data.get(key))).length;
-
-    track("job_search", {
-      has_query: Boolean(String(data.get("q") ?? "").trim()),
-      filter_count: filterCount,
+    const properties = getSearchAnalyticsProperties({
+      query: data.get("q"),
+      occupation: data.get("yrke"),
+      region: data.get("region"),
+      workingHours: data.get("anstallning"),
+      remote: data.get("distans"),
+      sort: data.get("sort"),
       source: variant,
     });
 
-    if (filterCount > 0) track("filter_used", { filter_count: filterCount });
+    track("job_search", properties);
+    if (properties.filter_count > 0) track("filter_used", properties);
   }
 
   if (variant === "hero") {

@@ -9,9 +9,10 @@ import { searchJobs } from "@/integrations/jobtech/search";
 import { breadcrumbJsonLd } from "@/lib/seo";
 import { Breadcrumbs } from "./Breadcrumbs";
 import { EmployerCallout, ApiErrorState, JobResultsSkeleton } from "./States";
-import { JobResults } from "./JobResults";
+import { JobResults, type JobResultsHeadingContext } from "./JobResults";
 import { JsonLd } from "./JsonLd";
 import { SearchForm } from "./SearchForm";
+import type { JobCardAnalyticsContext } from "./TrackedJobLink";
 
 type LandingSearch = {
   occupation?: OccupationCategory;
@@ -19,6 +20,25 @@ type LandingSearch = {
   remote: boolean;
   page: number;
 };
+
+function landingAnalyticsContext({ occupation, region, remote }: LandingSearch): JobCardAnalyticsContext {
+  const source = occupation && region
+    ? "occupation_region_landing"
+    : occupation
+      ? "occupation_landing"
+      : region
+        ? "region_landing"
+        : remote
+          ? "remote_landing"
+          : "search_results";
+
+  return {
+    source,
+    occupation: occupation?.slug,
+    region: region?.slug,
+    sort: "senaste",
+  };
+}
 
 async function loadLandingJobs({ occupation, region, remote, page }: LandingSearch) {
   try {
@@ -35,13 +55,43 @@ async function loadLandingJobs({ occupation, region, remote, page }: LandingSear
   }
 }
 
-function LandingResults({ result, basePath }: { result: JobSearchResult | null; basePath: string }) {
-  return result ? <JobResults basePath={basePath} result={result} /> : <ApiErrorState />;
+function LandingResults({
+  result,
+  basePath,
+  headingContext,
+  analyticsContext,
+}: {
+  result: JobSearchResult | null;
+  basePath: string;
+  headingContext: JobResultsHeadingContext;
+  analyticsContext: JobCardAnalyticsContext;
+}) {
+  return result
+    ? (
+      <JobResults
+        analyticsContext={analyticsContext}
+        basePath={basePath}
+        headingContext={headingContext}
+        result={result}
+      />
+    )
+    : <ApiErrorState />;
 }
 
 async function DeferredLandingResults(props: LandingSearch & { basePath: string }) {
   const result = await loadLandingJobs(props);
-  return <LandingResults basePath={props.basePath} result={result} />;
+  return (
+    <LandingResults
+      analyticsContext={landingAnalyticsContext(props)}
+      basePath={props.basePath}
+      headingContext={{
+        occupationLabel: props.occupation?.shortLabel,
+        regionLabel: props.region?.shortLabel,
+        remote: props.remote,
+      }}
+      result={result}
+    />
+  );
 }
 
 export async function JobLanding({
@@ -66,6 +116,12 @@ export async function JobLanding({
   emptyAsNotFound?: boolean;
 }) {
   const landingSearch = { occupation, region, remote, page };
+  const analyticsContext = landingAnalyticsContext(landingSearch);
+  const headingContext = {
+    occupationLabel: occupation?.shortLabel,
+    regionLabel: region?.shortLabel,
+    remote,
+  };
   const verifiedResult = emptyAsNotFound ? await loadLandingJobs(landingSearch) : undefined;
 
   if (verifiedResult?.total === 0) notFound();
@@ -102,7 +158,12 @@ export async function JobLanding({
             }}
           />
           {emptyAsNotFound ? (
-            <LandingResults basePath={basePath} result={verifiedResult ?? null} />
+            <LandingResults
+              analyticsContext={analyticsContext}
+              basePath={basePath}
+              headingContext={headingContext}
+              result={verifiedResult ?? null}
+            />
           ) : (
             <Suspense fallback={<JobResultsSkeleton />} key={`${basePath}:${page}`}>
               <DeferredLandingResults {...landingSearch} basePath={basePath} />

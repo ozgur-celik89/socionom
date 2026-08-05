@@ -120,3 +120,12 @@ export function AlertIcon(props: IconProps) {
     </IconBase>
   );
 }
+
+export function FlagIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <path d="M5 21V4" stroke="currentColor" strokeLinecap="round" strokeWidth="1.8" />
+      <path d="M5 5h10.5a1.5 1.5 0 0 1 1.2 2.4L15 9.7l1.7 2.3a1.5 1.5 0 0 1-1.2 2.4H5" stroke="currentColor" strokeLinejoin="round" strokeWidth="1.8" />
+    </IconBase>
+  );
+}

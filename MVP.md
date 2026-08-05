@@ -439,10 +439,13 @@ Regler:
 Om plan och funktionalitet tillåter ska följande aggregerade händelser mätas utan användaridentifierare:
 
 - `job_search`
+- `job_card_click`
 - `job_apply_click`
 - `employer_contact_click`
 - `filter_used`
 - `zero_results`
+
+Sökhändelser får innehålla endast kontrollerade värden från webbplatsens fasta val, exempelvis yrkesslug, regionsslug, omfattning, distans och sortering. Händelser för klick från jobbkort får innehålla listtyp, kortets position och samma kontrollerade sökkontext. Fritextsökning, jobbtitel och arbetsgivarnamn ska inte skickas.
 
 ## Informations- och juridiksidor
 

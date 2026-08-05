@@ -5,6 +5,7 @@ import { ApplyButton } from "@/components/ApplyButton";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { JsonLd } from "@/components/JsonLd";
 import { JobList } from "@/components/JobList";
+import { ReportJobLink } from "@/components/ReportJobLink";
 import { BriefcaseIcon, CalendarIcon, ClockIcon, MapPinIcon } from "@/components/icons";
 import { getBestOccupationCategory } from "@/config/jobs";
 import { getRegionByConceptId } from "@/config/regions";
@@ -91,6 +92,7 @@ export default async function JobDetailPage({ params }: Props) {
                 <div className="job-mobile-apply">
                   <ApplyButton href={job.applyUrl} jobId={job.id} />
                   <p className="apply-note">Ansökan öppnas hos arbetsgivaren eller, om direktlänk saknas, hos Arbetsförmedlingen.</p>
+                  <ReportJobLink jobId={job.id} jobSlug={job.slug} jobTitle={job.title} />
                 </div>
               </header>
               <div className="job-detail-body">
@@ -103,6 +105,7 @@ export default async function JobDetailPage({ params }: Props) {
               <div className="job-sidebar-card job-sidebar-apply">
                 <ApplyButton href={job.applyUrl} jobId={job.id} />
                 <p className="apply-note">Ansökan öppnas hos arbetsgivaren eller, om direktlänk saknas, hos Arbetsförmedlingen.</p>
+                <ReportJobLink jobId={job.id} jobSlug={job.slug} jobTitle={job.title} />
               </div>
               <div className="job-sidebar-card">
                 <h2>Om tjänsten</h2>
@@ -124,7 +127,15 @@ export default async function JobDetailPage({ params }: Props) {
                   <h2 id="related-jobs-title">Liknande jobb</h2>
                 </div>
               </div>
-              <JobList jobs={relatedJobs} />
+              <JobList
+                analyticsContext={{
+                  source: "related_jobs",
+                  occupation: occupation?.slug,
+                  region: region?.slug,
+                  sort: "senaste",
+                }}
+                jobs={relatedJobs}
+              />
             </section>
           )}
         </div>

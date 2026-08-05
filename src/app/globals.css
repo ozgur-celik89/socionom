@@ -1190,6 +1190,31 @@ summary {
   text-align: center;
 }
 
+.report-job-link {
+  align-items: center;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  display: flex;
+  font-size: 0.78rem;
+  font-weight: 620;
+  gap: 0.4rem;
+  justify-content: center;
+  line-height: 1.45;
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  text-align: center;
+}
+
+.report-job-link:hover {
+  color: var(--color-primary-hover);
+}
+
+.report-job-link svg {
+  flex: none;
+  height: 16px;
+  width: 16px;
+}
+
 .content-page {
   padding: 3.5rem 0 5rem;
 }

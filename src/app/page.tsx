@@ -57,7 +57,12 @@ export default async function HomePage() {
             </div>
             <Link className="text-link" href="/lediga-jobb">Visa alla jobb <ArrowRightIcon /></Link>
           </div>
-          {searchResult ? <JobList jobs={searchResult.jobs} /> : <ApiErrorState />}
+          {searchResult ? (
+            <JobList
+              analyticsContext={{ source: "home_latest", sort: "senaste" }}
+              jobs={searchResult.jobs}
+            />
+          ) : <ApiErrorState />}
         </div>
       </section>
 
