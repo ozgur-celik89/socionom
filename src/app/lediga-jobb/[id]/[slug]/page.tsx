@@ -50,6 +50,12 @@ export default async function JobDetailPage({ params }: Props) {
   const occupation = getBestOccupationCategory(job.title, job.occupationConceptIds);
   const region = getRegionByConceptId(location?.regionConceptId);
   const locationLabel = location?.municipality ?? location?.region ?? "Sverige";
+  const postalLocality = [location?.postcode, location?.city ?? location?.municipality]
+    .filter(Boolean)
+    .join(" ");
+  const workplaceAddress = location?.streetAddress || location?.postcode || location?.city
+    ? [location.streetAddress, postalLocality].filter(Boolean).join(", ")
+    : locationLabel;
   const scope = formatScope(job.scopeMin, job.scopeMax);
   let relatedJobs: JobSummary[] = [];
 
@@ -110,7 +116,7 @@ export default async function JobDetailPage({ params }: Props) {
               <div className="job-sidebar-card">
                 <h2>Om tjänsten</h2>
                 <ul className="detail-list">
-                  <li><MapPinIcon /><span><strong>Plats</strong>{locationLabel}</span></li>
+                  <li><MapPinIcon /><span><strong>Plats</strong>{workplaceAddress}</span></li>
                   {job.expiresAt && <li><CalendarIcon /><span><strong>Sista ansökningsdag</strong>{formatDate(job.expiresAt)}</span></li>}
                   <li><CalendarIcon /><span><strong>Publicerad</strong>{formatDate(job.publishedAt)}</span></li>
                   {(job.workingHours || scope) && <li><ClockIcon /><span><strong>Omfattning</strong>{[job.workingHours, scope].filter(Boolean).join(" · ")}</span></li>}

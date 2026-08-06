@@ -120,6 +120,7 @@ export function mapJobtechAd(ad: JobtechAd): Job | null {
     occupationLabel: ad.occupation?.label ?? undefined,
     occupationGroupLabel: ad.occupation_group?.label ?? undefined,
     employmentType: ad.employment_type?.label ?? undefined,
+    employmentTypeConceptId: ad.employment_type?.concept_id ?? undefined,
     duration: ad.duration?.label ?? undefined,
     workingHours: ad.working_hours_type?.label ?? undefined,
     scopeMin: ad.scope_of_work?.min ?? undefined,

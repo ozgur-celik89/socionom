@@ -26,6 +26,7 @@ export type Job = {
   occupationLabel?: string;
   occupationGroupLabel?: string;
   employmentType?: string;
+  employmentTypeConceptId?: string;
   duration?: string;
   workingHours?: string;
   scopeMin?: number;

@@ -14,16 +14,32 @@ describe("mapJobtechAd", () => {
         text_formatted: '<p>Ett viktigt arbete.</p><script>alert("xss")</script>',
       },
       employer: { name: "Exempelkommunen" },
+      employment_type: {
+        concept_id: "gro4_cWF_6D7",
+        label: "Vikariat",
+      },
       application_details: { url: "https://example.se/ansok" },
       occupation: { concept_id: "occupation", label: "Socialsekreterare" },
       occupation_group: { concept_id: "pok1_ipJ_yzD", label: "Socialsekreterare" },
-      workplace_address: { municipality: "Uppsala", country: "Sverige" },
+      workplace_address: {
+        municipality: "Uppsala",
+        city: "Uppsala",
+        street_address: "Storgatan 1",
+        postcode: "753 20",
+        country: "Sverige",
+      },
     });
 
     expect(job?.slug).toBe("socialsekreterare-till-barn-och-unga");
     expect(job?.descriptionHtml).toContain("Ett viktigt arbete.");
     expect(job?.descriptionHtml).not.toContain("script");
     expect(job?.applyUrl).toBe("https://example.se/ansok");
+    expect(job?.employmentTypeConceptId).toBe("gro4_cWF_6D7");
+    expect(job?.locations[0]).toMatchObject({
+      streetAddress: "Storgatan 1",
+      postcode: "753 20",
+      city: "Uppsala",
+    });
   });
 
   it("rejects removed and incomplete ads", () => {

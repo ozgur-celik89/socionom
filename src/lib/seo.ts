@@ -2,6 +2,43 @@ import type { Job } from "@/domain/jobs/types";
 import type { BreadcrumbItem } from "@/components/Breadcrumbs";
 import { siteConfig } from "@/config/site";
 
+const TEMPORARY_EMPLOYMENT_TYPE_IDS = new Set([
+  "sTu5_NBQ_udq", // Tidsbegränsad anställning
+  "gro4_cWF_6D7", // Vikariat
+  "EBhX_Qm2_8eX", // Säsongsanställning
+]);
+const OTHER_EMPLOYMENT_TYPE_IDS = new Set([
+  "kpPX_CNN_gDU", // Tillsvidareanställning
+  "1paU_aCR_nGn", // Behovsanställning
+]);
+
+function googleEmploymentType(job: Job) {
+  const workingHours = job.workingHours?.toLocaleLowerCase("sv-SE") ?? "";
+  const employmentTypes = [
+    ...(workingHours.includes("heltid") ? ["FULL_TIME"] : []),
+    ...(workingHours.includes("deltid") ? ["PART_TIME"] : []),
+  ];
+
+  if (employmentTypes.length > 0) return employmentTypes;
+
+  const sourceType = job.employmentType?.toLocaleLowerCase("sv-SE") ?? "";
+  if (
+    (job.employmentTypeConceptId && TEMPORARY_EMPLOYMENT_TYPE_IDS.has(job.employmentTypeConceptId))
+    || /tidsbegränsad|vikariat|säsongsanställning/.test(sourceType)
+  ) {
+    return ["TEMPORARY"];
+  }
+
+  if (
+    (job.employmentTypeConceptId && OTHER_EMPLOYMENT_TYPE_IDS.has(job.employmentTypeConceptId))
+    || /tills\s*vidare|tillsvidare|behovsanställning/.test(sourceType)
+  ) {
+    return ["OTHER"];
+  }
+
+  return [];
+}
+
 export function breadcrumbJsonLd(items: BreadcrumbItem[]) {
   return {
     "@context": "https://schema.org",
@@ -17,19 +54,17 @@ export function breadcrumbJsonLd(items: BreadcrumbItem[]) {
 
 export function jobPostingJsonLd(job: Job) {
   const location = job.locations[0];
+  const addressLocality = location?.city ?? location?.municipality;
   const address = {
     "@type": "PostalAddress",
-    addressLocality: location?.city ?? location?.municipality,
-    addressRegion: location?.region,
-    postalCode: location?.postcode,
+    ...(location?.streetAddress ? { streetAddress: location.streetAddress } : {}),
+    ...(addressLocality ? { addressLocality } : {}),
+    ...(location?.region ? { addressRegion: location.region } : {}),
+    ...(location?.postcode ? { postalCode: location.postcode } : {}),
     addressCountry: location?.countryCode ?? "SE",
   };
 
-  const workingHours = job.workingHours?.toLocaleLowerCase("sv-SE") ?? "";
-  const employmentTypes = [
-    ...(workingHours.includes("heltid") ? ["FULL_TIME"] : []),
-    ...(workingHours.includes("deltid") ? ["PART_TIME"] : []),
-  ];
+  const employmentTypes = googleEmploymentType(job);
 
   return {
     "@context": "https://schema.org",
