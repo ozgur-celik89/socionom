@@ -113,11 +113,11 @@ summary {
   z-index: 50;
 }
 
-.site-header .logo {
+.site-header .logo-wordmark {
   color: white;
 }
 
-.site-header .logo span {
+.site-header .logo-suffix {
   color: #efc7d5;
 }
 
@@ -136,8 +136,23 @@ summary {
   text-decoration: none;
 }
 
-.logo span {
+.logo-wordmark {
+  color: var(--color-primary-hover);
+}
+
+.logo-suffix {
   color: var(--color-accent-text);
+}
+
+.logo-svg {
+  display: block;
+  line-height: 0;
+}
+
+.logo-image {
+  display: block;
+  height: 2rem;
+  width: auto;
 }
 
 .desktop-nav {
@@ -1349,11 +1364,11 @@ summary {
   padding: 3.8rem 0 1.5rem;
 }
 
-.site-footer .logo {
+.site-footer .logo-wordmark {
   color: white;
 }
 
-.site-footer .logo span {
+.site-footer .logo-suffix {
   color: #efc7d5;
 }
 

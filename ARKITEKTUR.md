@@ -245,3 +245,7 @@ JobSearch-svar ska anpassas efter användningen: listor hämtar endast fälten s
 Relevansurvalet använder verifierade JobTech-grupper tillsammans med negativa `occupation-name`-filter för närliggande roller som inte normalt är socionomjobb. Det bevarar JobSearch-resultatens antal och pagination. Uppenbara platshållartitlar filtreras dessutom lokalt med samma deterministiska regel för jobblistor, individuella jobbsidor och sitemap; ovanliga men riktiga titlar ska inte avvisas enbart på formuleringen.
 
 Arbetsgivarlogotyper i jobbkort hämtas via JobSearch-fältet `logo_url` och laddas direkt från Arbetsförmedlingens domän med lazy loading och fasta bildmått. De ska inte gå genom Vercels bildoptimering i MVP:n, eftersom det skulle skapa extra bildtransformationer och CPU-användning för ett begränsat visuellt värde.
+
+Canonical- och statuskontrollen för individuella jobb använder Proxy endast för direkta dokumentförfrågningar, där en riktig HTTP `308` eller `404` behövs. RSC-navigering och prefetch valideras av jobbsidan och ska passera Proxy utan externt uppslag. Proxy använder ett separat minimalt JobSearch-svar utan beskrivning eller retry, eftersom Next.js fetch-cache inte gäller där.
+
+Individuella jobbsidor delar den förgenererade övergripande Open Graph-bilden i MVP:n. Jobbspecifik titel och beskrivning finns fortfarande i metadata, men en unik serverrenderad rasterbild per annons används inte eftersom bildgenereringen ger oproportionerlig CPU-belastning.

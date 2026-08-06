@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 
 const getCanonicalJobSlug = vi.hoisted(() => vi.fn());
 
-vi.mock("@/integrations/jobtech/search", () => ({ getCanonicalJobSlug }));
+vi.mock("@/integrations/jobtech/canonical", () => ({ getCanonicalJobSlug }));
 
 import { proxy } from "./proxy";
 
@@ -42,6 +42,21 @@ describe("job slug proxy", () => {
     await proxy(new NextRequest("https://socionom.se/lediga-jobb/yrke/kurator"));
     await proxy(new NextRequest("https://socionom.se/lediga-jobb/ort/uppsala"));
 
+    expect(getCanonicalJobSlug).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["an RSC navigation", { rsc: "1" }],
+    ["a route prefetch", { "next-router-prefetch": "1" }],
+    ["a segment prefetch", { "next-router-segment-prefetch": "/_tree" }],
+    ["a browser prefetch", { purpose: "prefetch" }],
+  ])("skips the canonical lookup for %s", async (_label, headers) => {
+    const response = await proxy(new NextRequest(
+      "https://socionom.se/lediga-jobb/123/korrekt-slug",
+      { headers },
+    ));
+
+    expect(response.headers.get("x-middleware-next")).toBe("1");
     expect(getCanonicalJobSlug).not.toHaveBeenCalled();
   });
 });

@@ -14,11 +14,3 @@ export const brandMarkSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 
 
 /** Märket som data-URI, för <img> i ImageResponse (satori kan inte läsa externa filer). */
 export const brandMarkDataUri = `data:image/svg+xml;base64,${Buffer.from(brandMarkSvg).toString("base64")}`;
-
-/** Kortar text till en längd som får plats i en OG-bild, utan att klippa mitt i ett ord. */
-export function truncate(text: string, maxLength: number) {
-  if (text.length <= maxLength) return text;
-  const cut = text.slice(0, maxLength);
-  const lastSpace = cut.lastIndexOf(" ");
-  return `${(lastSpace > maxLength * 0.6 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
-}

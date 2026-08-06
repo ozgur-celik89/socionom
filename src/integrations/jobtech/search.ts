@@ -1,9 +1,7 @@
 import type { JobSearchFilters, JobSearchResult, SitemapJob } from "@/domain/jobs/types";
 import { coreOccupationGroupIds, excludedOccupationNameIds } from "@/config/jobs";
-import { hasMeaningfulJobTitle } from "@/domain/jobs/relevance";
-import { isApplicationDeadlinePassed } from "@/domain/jobs/rules";
-import { slugify } from "@/lib/slug";
 import { mapJobtechAd, mapJobtechAdSummary, mapJobtechSitemapJob } from "./mapper";
+import { matchesApprovedJobSelection } from "./selection";
 import type { JobtechAd, JobtechSearchResponse } from "./types";
 
 const JOBSEARCH_BASE_URL = "https://jobsearch.api.jobtechdev.se";
@@ -11,8 +9,6 @@ const SWEDEN_CONCEPT_ID = "i46j_HmG_v64";
 const DEFAULT_PAGE_SIZE = 20;
 const MAX_OFFSET = 2000;
 const REQUEST_TIMEOUT_MS = 5_000;
-const CORE_OCCUPATION_GROUP_ID_SET = new Set<string>(coreOccupationGroupIds);
-const EXCLUDED_OCCUPATION_NAME_ID_SET = new Set<string>(excludedOccupationNameIds);
 const SEARCH_RESULT_FIELDS = [
   "total{value}",
   "hits{id,webpage_url,logo_url,headline,application_deadline,description{text},employment_type{label},duration{label},working_hours_type{label},scope_of_work{min,max},employer{name,workplace},occupation{concept_id},occupation_group{concept_id},workplace_address{municipality,municipality_concept_id,region,region_concept_id,country,country_code,city},publication_date,removed}",
@@ -31,19 +27,6 @@ export class JobSearchUnavailableError extends Error {
 
 function normalizeQuery(value?: string) {
   return value?.trim().replace(/\s+/g, " ").slice(0, 80) || undefined;
-}
-
-function matchesApprovedJobSelection(ad: JobtechAd) {
-  const occupationGroupId = ad.occupation_group?.concept_id?.trim();
-  const occupationNameId = ad.occupation?.concept_id?.trim();
-
-  return Boolean(
-    hasMeaningfulJobTitle(ad.headline)
-    &&
-    occupationGroupId
-    && CORE_OCCUPATION_GROUP_ID_SET.has(occupationGroupId)
-    && (!occupationNameId || !EXCLUDED_OCCUPATION_NAME_ID_SET.has(occupationNameId)),
-  );
 }
 
 async function fetchJobtech<T>(url: URL, revalidate: number, fields?: string): Promise<T> {
@@ -123,27 +106,6 @@ export async function getJobById(id: string) {
     const ad = await fetchJobtech<JobtechAd>(url, 900);
     if (!matchesApprovedJobSelection(ad)) return null;
     return mapJobtechAd(ad);
-  } catch (error) {
-    if (error instanceof Error && error.message === "NOT_FOUND") return null;
-    throw error;
-  }
-}
-
-export async function getCanonicalJobSlug(id: string) {
-  if (!/^\d{1,64}$/.test(id)) return null;
-
-  const url = new URL(`/ad/${encodeURIComponent(id)}`, JOBSEARCH_BASE_URL);
-
-  try {
-    const ad = await fetchJobtech<JobtechAd>(url, 900);
-    const title = ad.headline?.trim();
-    if (
-      !matchesApprovedJobSelection(ad)
-      || !title
-      || ad.removed
-      || isApplicationDeadlinePassed(ad.application_deadline ?? undefined)
-    ) return null;
-    return slugify(title);
   } catch (error) {
     if (error instanceof Error && error.message === "NOT_FOUND") return null;
     throw error;

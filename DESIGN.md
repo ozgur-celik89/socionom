@@ -138,7 +138,7 @@ Webbplatsen ska undvika:
 Sidhuvudet ska vara enkelt och luftigt.
 
 ```text
-socionom.se        Hitta jobb   Yrkesområden   Om oss   Annonsera
+[portfölj] socionom.se        Hitta jobb   Yrkesområden   Om oss   Annonsera
 ```
 
 På desktop placeras logotypen till vänster och navigationen till höger. `Annonsera` kan visas som en sekundär knapp med grön kant. På mobil används en enkel menyknapp.
@@ -147,15 +147,15 @@ Sidhuvudet har samma mörkgröna bakgrund som footern (`#143F35`), vit logotyp o
 
 ## Logotyp
 
-Första versionen kan använda en ren ordlogotyp:
+Ordlogotypen är:
 
 ```text
 socionom.se
 ```
 
-I navigation och footer sätts `socionom` i vitt och `.se` i en tydlig ljusrosa ton. På ljusa ytor sätts `socionom` i mörk skogsgrön och `.se` i mörk gammelrosa.
+I navigation och footer sätts `socionom` i vitt och `.se` i en tydlig ljusrosa ton. På ljusa ytor sätts `socionom` i mörk skogsgrön och `.se` i mörk gammelrosa. Huvudnavigationen använder en fristående SVG-logotyp där det befintliga portföljmärket från favicon och OG-bild står framför ordmärket. SVG-filen bäddar in projektets exakta Manrope-webbfont och renderar ordmärket i vikt 780, med samma visuella storlek, teckenavstånd och textrendering som footerns HTML-text. Märket behåller sin skogsgröna färg och delarna centreras optiskt. Footern använder fortsatt enbart ordmärket som HTML-text.
 
-Logotypen bör undvika hjärtan, händer och generiska personfigurer. Om en symbol behövs senare kan den bygga på bokstaven `S` eller en diskret form inspirerad av en pratbubbla.
+Logotypen ska fortsatt undvika hjärtan, händer och generiska personfigurer. Portföljmärket är den gemensamma symbolen för favicon, OG-bild och huvudnavigation.
 
 ## Startsidan
 

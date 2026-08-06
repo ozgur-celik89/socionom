@@ -7,7 +7,7 @@ export function Header() {
   return (
     <header className="site-header">
       <div className="site-container header-inner">
-        <Logo />
+        <Logo withMark />
 
         <nav aria-label="Huvudnavigation" className="desktop-nav">
           {mainNavigation.map((item) => (

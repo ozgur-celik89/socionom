@@ -12,7 +12,7 @@ export default function OpengraphImage() {
         style={{
           display: "flex",
           flexDirection: "column",
-          justifyContent: "space-between",
+          justifyContent: "flex-start",
           width: "100%",
           height: "100%",
           padding: "72px 80px",
@@ -30,32 +30,8 @@ export default function OpengraphImage() {
           </div>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-          <div
-            style={{
-              display: "flex",
-              alignSelf: "flex-start",
-              padding: "10px 22px",
-              borderRadius: 999,
-              background: brandColors.blush,
-              color: brandColors.rose,
-              fontSize: 24,
-              fontWeight: 600,
-            }}
-          >
-            Uppdaterat dagligen
-          </div>
-          <div style={{ display: "flex", fontSize: 76, fontWeight: 800, lineHeight: 1.1, letterSpacing: -2 }}>
-            Lediga jobb för socionomer i hela Sverige
-          </div>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 28, color: brandColors.sage }}>
-          <span>Socialsekreterare</span>
-          <span style={{ color: brandColors.blush }}>·</span>
-          <span>Kurator</span>
-          <span style={{ color: brandColors.blush }}>·</span>
-          <span>Biståndshandläggare</span>
+        <div style={{ display: "flex", marginTop: 110, fontSize: 84, fontWeight: 800, lineHeight: 1.08, letterSpacing: -2 }}>
+          Lediga jobb för socionomer i hela Sverige
         </div>
       </div>
     ),

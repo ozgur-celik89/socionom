@@ -40,6 +40,7 @@ export function TrackedJobLink({
       aria-label={ariaLabel}
       className={className}
       href={href}
+      prefetch={false}
       onClick={() => track("job_card_click", {
         source: analyticsContext.source,
         position,

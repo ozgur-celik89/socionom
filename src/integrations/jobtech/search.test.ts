@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
-  getCanonicalJobSlug,
   getJobById,
   getJobsForSitemap,
   JobSearchUnavailableError,
@@ -129,16 +128,11 @@ describe("JobSearch request", () => {
       .mockResolvedValueOnce({
         ok: true,
         json: async () => validAd({ occupationNameId: "NSEG_DmQ_waj" }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => validAd({ headline: "Standard" }),
       });
     vi.stubGlobal("fetch", fetchMock);
 
     await expect(getJobById("123")).resolves.toBeNull();
     await expect(getJobById("124")).resolves.toBeNull();
-    await expect(getCanonicalJobSlug("125")).resolves.toBeNull();
   });
 
   it("keeps relevant individual ads available", async () => {

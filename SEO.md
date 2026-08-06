@@ -228,6 +228,8 @@ Varje indexerbar sida ska ange sin föredragna URL med `rel="canonical"`.
 
 Om en jobbsida nås med rätt ID men gammal eller felaktig slug ska sidan omdirigeras permanent till den aktuella canonical-URL:en.
 
+Direkta dokumentförfrågningar valideras före rendering så att fel slug får HTTP `308` och borttagna jobb får HTTP `404`. Klientens RSC-navigering och prefetch gör samma innehållskontroll i jobbsidan men ska inte dubblera det externa uppslaget i Proxy.
+
 Alla tidigare adresser under `/jobb` ska omdirigeras permanent till exakt motsvarande adress under `/lediga-jobb`. Omdirigeringarna ska behållas långsiktigt, medan interna länkar, canonical-URL:er och sitemap endast använder den nya URL-grenen.
 
 ## Utgångna och borttagna jobb
@@ -373,6 +375,8 @@ Description: Sök tjänsten som [jobbtitel] hos [arbetsgivare] i [ort]. Se arbet
 ```
 
 Metadata ska genereras från normaliserad och sanerad data. Saknade uppgifter ska utelämnas i stället för att ge konstiga eller tomma formuleringar.
+
+I MVP:n har jobbsidor unik titel, beskrivning och canonical men delar webbplatsens förgenererade Open Graph-bild. En unik rasterbild per jobb införs först om mätdata visar ett tydligt värde som motiverar den extra serverberäkningen.
 
 ## Övrig strukturerad data
 
