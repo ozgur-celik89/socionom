@@ -27,6 +27,7 @@ describe("mapJobtechAd", () => {
         street_address: "Storgatan 1",
         postcode: "753 20",
         country: "Sverige",
+        country_code: "199",
       },
     });
 
@@ -39,6 +40,7 @@ describe("mapJobtechAd", () => {
       streetAddress: "Storgatan 1",
       postcode: "753 20",
       city: "Uppsala",
+      countryCode: "SE",
     });
   });
 
@@ -104,6 +106,20 @@ describe("mapJobtechAd", () => {
     });
 
     expect(job?.applyUrl).toBe("https://arbetsformedlingen.se/platsbanken/annonser/123");
+  });
+
+  it("does not expose a foreign legacy country code as an ISO country code", () => {
+    const job = mapJobtechAd({
+      id: "foreign",
+      headline: "Kurator",
+      webpage_url: "https://arbetsformedlingen.se/platsbanken/annonser/foreign",
+      publication_date: "2099-01-01T10:00:00",
+      description: { text: "Beskrivning" },
+      workplace_address: { country: "Norge", country_code: "129" },
+    });
+
+    expect(job?.locations[0]).toMatchObject({ country: "Norge" });
+    expect(job?.locations[0]?.countryCode).toBeUndefined();
   });
 });
 

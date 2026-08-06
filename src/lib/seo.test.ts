@@ -41,6 +41,7 @@ describe("JobPosting structured data", () => {
       streetAddress: "Storgatan 1",
       addressLocality: "Uppsala",
       postalCode: "753 20",
+      addressCountry: "SE",
     });
     expect(data).not.toHaveProperty("jobLocationType");
     expect(data).not.toHaveProperty("applicantLocationRequirements");

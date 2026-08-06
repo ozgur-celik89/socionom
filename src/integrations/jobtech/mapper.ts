@@ -65,8 +65,21 @@ function descriptionAsText(formatted?: string | null, plain?: string | null) {
   }).replace(/\s+/g, " ").trim();
 }
 
+function normalizeCountryCode(countryCode?: string | null, country?: string | null) {
+  const normalizedCode = countryCode?.trim().toUpperCase();
+  if (normalizedCode && /^[A-Z]{2}$/.test(normalizedCode)) return normalizedCode;
+
+  const normalizedCountry = country?.trim().toLocaleLowerCase("sv-SE");
+  if (normalizedCode === "199" || normalizedCountry === "sverige" || normalizedCountry === "sweden") {
+    return "SE";
+  }
+
+  return undefined;
+}
+
 function mapLocation(ad: JobtechAd): JobLocation {
   const address = ad.workplace_address;
+  const country = address?.country?.trim() || "Sverige";
   const coordinates =
     Array.isArray(address?.coordinates) && address.coordinates.length === 2
       ? ([address.coordinates[0], address.coordinates[1]] as [number, number])
@@ -80,8 +93,9 @@ function mapLocation(ad: JobtechAd): JobLocation {
     city: address?.city ?? undefined,
     streetAddress: address?.street_address ?? undefined,
     postcode: address?.postcode ?? undefined,
-    country: address?.country ?? "Sverige",
-    countryCode: address?.country_code ?? "SE",
+    country,
+    countryCode: normalizeCountryCode(address?.country_code, address?.country)
+      ?? (address?.country ? undefined : "SE"),
     coordinates,
   };
 }
