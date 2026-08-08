@@ -261,12 +261,15 @@ Föreslagen struktur:
 Jobbsitemap ska:
 
 - endast innehålla aktiva jobbsidor
+- endast innehålla en URL när den minimala sitemap-datan säkert visar att flera JobSearch-poster motsvarar samma ansökningstillfälle
 - endast innehålla canonical-URL:er
 - använda absoluta HTTPS-URL:er
 - ange korrekt `lastmod` från källdatan
 - vara cachad så att varje sökmotoranrop inte orsakar en full ny API-hämtning
 
 Utan databas genereras jobbsitemap genom paginerade, cachade anrop till JobSearch. Om antalet annonser eller API-belastningen gör detta opålitligt är det ett tekniskt skäl att införa JobStream och databas tidigare.
+
+Dubbletter i sitemap identifieras konservativt med normaliserad titel, arbetsgivare, sista ansökningsdag och extern ansöknings-URL. Poster utan direktlänk slås inte ihop utifrån sitemapens minimala data. Den valda källidentiteten ska vara deterministisk så att samma jobb inte växlar URL mellan sitemap-genereringar.
 
 En sitemap får innehålla högst 50 000 URL:er eller vara högst 50 MB okomprimerad. Större mängder delas upp och samlas i ett sitemap-index. Källa: [Googles dokumentation om sitemap](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap).
 

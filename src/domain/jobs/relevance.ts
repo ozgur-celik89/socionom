@@ -10,6 +10,11 @@ const INVALID_JOB_TITLES = new Set([
   "tjanst",
 ]);
 
+// Uppdrag som publiceras som annonser men inte är anställningar.
+const NON_EMPLOYMENT_TITLES = new Set([
+  "familjehem",
+]);
+
 function normalizeTitle(value: string) {
   return value
     .normalize("NFKD")
@@ -25,4 +30,9 @@ export function hasMeaningfulJobTitle(value?: string | null) {
 
   const normalizedTitle = normalizeTitle(value);
   return normalizedTitle.length >= 3 && !INVALID_JOB_TITLES.has(normalizedTitle);
+}
+
+export function isEmploymentJobTitle(value?: string | null) {
+  if (!value?.trim()) return false;
+  return !NON_EMPLOYMENT_TITLES.has(normalizeTitle(value));
 }

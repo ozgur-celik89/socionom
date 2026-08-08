@@ -24,6 +24,7 @@ async function SearchResults({
     result = await searchJobs({
       query: filters.query ?? filters.occupation?.query,
       occupationGroupIds: filters.occupation?.groupIds,
+      occupationNameIds: filters.occupation?.occupationNameIds,
       regionId: filters.region?.conceptId,
       worktimeExtentId: filters.workingHours?.conceptId,
       remote: filters.remote,

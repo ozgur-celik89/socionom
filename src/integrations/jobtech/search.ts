@@ -1,6 +1,7 @@
 import type { JobSearchFilters, JobSearchResult, SitemapJob } from "@/domain/jobs/types";
 import { coreOccupationGroupIds, excludedOccupationNameIds } from "@/config/jobs";
 import { mapJobtechAd, mapJobtechAdSummary, mapJobtechSitemapJob } from "./mapper";
+import { deduplicateJobtechAds } from "./deduplication";
 import { matchesApprovedJobSelection } from "./selection";
 import type { JobtechAd, JobtechSearchResponse } from "./types";
 
@@ -9,13 +10,13 @@ const SWEDEN_CONCEPT_ID = "i46j_HmG_v64";
 const DEFAULT_PAGE_SIZE = 20;
 const MAX_OFFSET = 2000;
 const REQUEST_TIMEOUT_MS = 5_000;
+const TOTAL_RESULT_FIELDS = "total{value}";
 const SEARCH_RESULT_FIELDS = [
-  "total{value}",
-  "hits{id,webpage_url,logo_url,headline,application_deadline,description{text},employment_type{label},duration{label},working_hours_type{label},scope_of_work{min,max},employer{name,workplace},occupation{concept_id},occupation_group{concept_id},workplace_address{municipality,municipality_concept_id,region,region_concept_id,country,country_code,city},publication_date,removed}",
+  "hits{id,webpage_url,logo_url,headline,application_deadline,application_details{url},description{text},employment_type{label},duration{label},working_hours_type{label},scope_of_work{min,max},employer{name,workplace},occupation{concept_id},occupation_group{concept_id},workplace_address{municipality,municipality_concept_id,region,region_concept_id,country,country_code,city},publication_date,removed}",
 ].join(",");
 const SITEMAP_RESULT_FIELDS = [
   "total{value}",
-  "hits{id,headline,application_deadline,publication_date,removed,timestamp,occupation{concept_id},occupation_group{concept_id}}",
+  "hits{id,headline,application_deadline,application_details{url},employer{name,workplace},publication_date,removed,timestamp,occupation{concept_id},occupation_group{concept_id}}",
 ].join(",");
 
 export class JobSearchUnavailableError extends Error {
@@ -59,20 +60,28 @@ export async function searchJobs(filters: JobSearchFilters = {}): Promise<JobSea
   const query = normalizeQuery(filters.query);
   const url = new URL("/search", JOBSEARCH_BASE_URL);
 
-  url.searchParams.set("limit", String(pageSize));
-  url.searchParams.set("offset", String((page - 1) * pageSize));
   url.searchParams.set("resdet", "full");
   // JobSearch behandlar geografiska nivåer som alternativa träffar. Om både
   // Sverige och ett län skickas blir hela Sverige kvar i resultatet.
   if (!filters.regionId) url.searchParams.set("country", SWEDEN_CONCEPT_ID);
   url.searchParams.set("sort", filters.sort ?? (query ? "relevance" : "pubdate-desc"));
 
-  for (const groupId of filters.occupationGroupIds ?? coreOccupationGroupIds) {
-    url.searchParams.append("occupation-group", groupId);
-  }
+  const positiveOccupationNameIds = filters.occupationNameIds ?? [];
+  if (positiveOccupationNameIds.length > 0) {
+    // JobSearch behandlar occupation-group och occupation-name som alternativa
+    // träffar. Den breda gruppen måste därför utelämnas när benämningen ska
+    // avgränsa en redaktionell landningssida.
+    for (const occupationNameId of positiveOccupationNameIds) {
+      url.searchParams.append("occupation-name", occupationNameId);
+    }
+  } else {
+    for (const groupId of filters.occupationGroupIds ?? coreOccupationGroupIds) {
+      url.searchParams.append("occupation-group", groupId);
+    }
 
-  for (const occupationNameId of excludedOccupationNameIds) {
-    url.searchParams.append("occupation-name", `-${occupationNameId}`);
+    for (const occupationNameId of excludedOccupationNameIds) {
+      url.searchParams.append("occupation-name", `-${occupationNameId}`);
+    }
   }
 
   if (query) url.searchParams.set("q", query);
@@ -80,12 +89,25 @@ export async function searchJobs(filters: JobSearchFilters = {}): Promise<JobSea
   if (filters.worktimeExtentId) url.searchParams.set("worktime-extent", filters.worktimeExtentId);
   if (filters.remote) url.searchParams.set("remote", "true");
 
-  const response = await fetchJobtech<JobtechSearchResponse>(url, 600, SEARCH_RESULT_FIELDS);
-  const jobs = (response.hits ?? [])
-    .filter(matchesApprovedJobSelection)
+  const totalUrl = new URL(url);
+  totalUrl.searchParams.set("limit", "1");
+  totalUrl.searchParams.set("offset", "0");
+  const pageUrl = new URL(url);
+  pageUrl.searchParams.set("limit", String(pageSize));
+  pageUrl.searchParams.set("offset", String((page - 1) * pageSize));
+  const [totalResponse, pageResponse] = await Promise.all([
+    fetchJobtech<JobtechSearchResponse>(totalUrl, 600, TOTAL_RESULT_FIELDS),
+    fetchJobtech<JobtechSearchResponse>(pageUrl, 600, SEARCH_RESULT_FIELDS),
+  ]);
+  const total = Math.max(
+    totalResponse.total?.value ?? pageResponse.hits?.length ?? 0,
+    0,
+  );
+  const jobs = deduplicateJobtechAds(
+    (pageResponse.hits ?? []).filter(matchesApprovedJobSelection),
+  )
     .map(mapJobtechAdSummary)
     .filter((job) => job !== null);
-  const total = Math.max(response.total?.value ?? jobs.length, 0);
   const reachableTotal = Math.min(total, MAX_OFFSET + pageSize);
 
   return {
@@ -131,14 +153,10 @@ async function getSitemapPage(page: number) {
   }
 
   const response = await fetchJobtech<JobtechSearchResponse>(url, 3600, SITEMAP_RESULT_FIELDS);
-  const jobs = (response.hits ?? [])
-    .filter(matchesApprovedJobSelection)
-    .map(mapJobtechSitemapJob)
-    .filter((job): job is SitemapJob => job !== null);
-
+  const hits = response.hits ?? [];
   return {
-    jobs,
-    total: Math.max(response.total?.value ?? jobs.length, 0),
+    ads: hits.filter(matchesApprovedJobSelection),
+    total: Math.max(response.total?.value ?? hits.length, 0),
   };
 }
 
@@ -146,11 +164,17 @@ export async function getJobsForSitemap(): Promise<SitemapJob[]> {
   const firstPage = await getSitemapPage(1);
   const pageCount = Math.min(Math.max(Math.ceil(firstPage.total / 100), 1), 20);
 
-  if (pageCount === 1) return firstPage.jobs;
+  if (pageCount === 1) {
+    return deduplicateJobtechAds(firstPage.ads)
+      .map(mapJobtechSitemapJob)
+      .filter((job): job is SitemapJob => job !== null);
+  }
 
   const remainingPages = await Promise.all(
     Array.from({ length: pageCount - 1 }, (_, index) => getSitemapPage(index + 2)),
   );
 
-  return [firstPage, ...remainingPages].flatMap((result) => result.jobs);
+  return deduplicateJobtechAds([firstPage, ...remainingPages].flatMap((result) => result.ads))
+    .map(mapJobtechSitemapJob)
+    .filter((job): job is SitemapJob => job !== null);
 }

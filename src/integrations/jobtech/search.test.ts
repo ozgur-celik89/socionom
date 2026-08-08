@@ -11,11 +11,13 @@ function validAd({
   headline = "Socialsekreterare till barn och unga",
   occupationGroupId = "pok1_ipJ_yzD",
   occupationNameId = "socialsekreterare",
+  applicationUrl,
 }: {
   id?: string;
   headline?: string;
   occupationGroupId?: string;
   occupationNameId?: string;
+  applicationUrl?: string;
 } = {}) {
   return {
     id,
@@ -24,11 +26,19 @@ function validAd({
     publication_date: "2099-01-01T10:00:00",
     application_deadline: "2099-02-01T23:59:59",
     description: { text: "Ett viktigt arbete." },
+    application_details: { url: applicationUrl ?? `https://example.se/ansok/${id}` },
     employer: { name: "Exempelkommunen" },
     occupation: { concept_id: occupationNameId, label: "Socialsekreterare" },
     occupation_group: { concept_id: occupationGroupId, label: "Socialsekreterare" },
     workplace_address: { region: "Stockholms län", country: "Sverige" },
   };
+}
+
+function findFetchCall(fetchMock: ReturnType<typeof vi.fn>, field: string) {
+  return fetchMock.mock.calls.find((call) => {
+    const options = call[1] as { headers?: Record<string, string> } | undefined;
+    return options?.headers?.["X-Fields"]?.includes(field);
+  });
 }
 
 afterEach(() => {
@@ -45,7 +55,8 @@ describe("JobSearch request", () => {
 
     await searchJobs({ worktimeExtentId: "947z_JGS_Uk2" });
 
-    const requestedUrl = fetchMock.mock.calls[0]?.[0];
+    const contentCall = findFetchCall(fetchMock, "hits{");
+    const requestedUrl = contentCall?.[0];
     expect(requestedUrl).toBeInstanceOf(URL);
     expect((requestedUrl as URL).searchParams.get("worktime-extent")).toBe("947z_JGS_Uk2");
     expect((requestedUrl as URL).searchParams.has("working-hours-type")).toBe(false);
@@ -56,11 +67,15 @@ describe("JobSearch request", () => {
       "-Vq8N_Qvz_i4u",
     ]);
 
-    const requestOptions = fetchMock.mock.calls[0]?.[1] as { headers?: Record<string, string> };
+    const requestOptions = contentCall?.[1] as { headers?: Record<string, string> };
     expect(requestOptions.headers?.["X-Fields"]).toContain("description{text}");
     expect(requestOptions.headers?.["X-Fields"]).toContain("working_hours_type{label}");
     expect(requestOptions.headers?.["X-Fields"]).not.toContain("text_formatted");
-    expect(requestOptions.headers?.["X-Fields"]).not.toContain("application_details");
+    expect(requestOptions.headers?.["X-Fields"]).toContain("application_details{url}");
+    expect((requestedUrl as URL).searchParams.get("limit")).toBe("20");
+    expect((requestedUrl as URL).searchParams.get("offset")).toBe("0");
+    const totalUrl = findFetchCall(fetchMock, "total{value}")?.[0] as URL;
+    expect(totalUrl.searchParams.get("limit")).toBe("1");
   });
 
   it("uses the selected region without the broader Sweden geography", async () => {
@@ -77,12 +92,29 @@ describe("JobSearch request", () => {
     expect(requestedUrl.searchParams.has("country")).toBe(false);
   });
 
+  it("supports verified positive occupation names for editorial landing pages", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ total: { value: 0 }, hits: [] }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await searchJobs({ occupationNameIds: ["kurator", "skolkurator"] });
+
+    const requestedUrl = fetchMock.mock.calls[0]?.[0] as URL;
+    expect(requestedUrl.searchParams.getAll("occupation-name")).toEqual([
+      "kurator",
+      "skolkurator",
+    ]);
+    expect(requestedUrl.searchParams.has("occupation-group")).toBe(false);
+  });
+
   it("retries once before reporting that JobSearch is unavailable", async () => {
     const fetchMock = vi.fn().mockRejectedValue(new Error("network unavailable"));
     vi.stubGlobal("fetch", fetchMock);
 
     await expect(searchJobs()).rejects.toBeInstanceOf(JobSearchUnavailableError);
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(4);
   });
 
   it("only maps ads that belong to the approved core selection", async () => {
@@ -105,9 +137,10 @@ describe("JobSearch request", () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({
-        total: { value: 2 },
+        total: { value: 3 },
         hits: [
           validAd({ id: "placeholder", headline: "Standard" }),
+          validAd({ id: "family-home", headline: "Familjehem" }),
           validAd({ id: "real", headline: "Vi söker en Arbetsledare!" }),
         ],
       }),
@@ -117,6 +150,68 @@ describe("JobSearch request", () => {
     const result = await searchJobs();
 
     expect(result.jobs.map((job) => job.id)).toEqual(["real"]);
+  });
+
+  it("deduplicates records that lead to the same application", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        total: { value: 3 },
+        hits: [
+          validAd({ id: "100", applicationUrl: "https://example.se/ansok/duplicate" }),
+          validAd({ id: "101", applicationUrl: "https://example.se/ansok/duplicate" }),
+          validAd({ id: "102" }),
+        ],
+      }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await searchJobs();
+
+    expect(result.jobs.map((job) => job.id)).toEqual(["101", "102"]);
+  });
+
+  it("shares a minimal total request while fetching only the requested content page", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ total: { value: 1 }, hits: [validAd()] }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await searchJobs({ pageSize: 6 });
+    await searchJobs({ pageSize: 20 });
+
+    const totalCalls = fetchMock.mock.calls.filter((call) => {
+      const options = call[1] as { headers?: Record<string, string> };
+      return options.headers?.["X-Fields"] === "total{value}";
+    });
+    const contentCalls = fetchMock.mock.calls.filter((call) => {
+      const options = call[1] as { headers?: Record<string, string> };
+      return options.headers?.["X-Fields"]?.includes("hits{");
+    });
+
+    expect(totalCalls.map((call) => (call[0] as URL).toString()))
+      .toEqual([totalCalls[0]?.[0].toString(), totalCalls[0]?.[0].toString()]);
+    expect(contentCalls.map((call) => {
+      const url = call[0] as URL;
+      return `${url.searchParams.get("limit")}:${url.searchParams.get("offset")}`;
+    })).toEqual(["6:0", "20:0"]);
+  });
+
+  it("does not rescan earlier content pages during pagination", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ total: { value: 40 }, hits: [validAd()] }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await searchJobs({ page: 2, pageSize: 20 });
+
+    const contentCall = findFetchCall(fetchMock, "hits{");
+    const contentUrl = contentCall?.[0] as URL;
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(contentUrl.searchParams.get("limit")).toBe("20");
+    expect(contentUrl.searchParams.get("offset")).toBe("20");
   });
 
   it("does not expose individual ads outside the approved core selection", async () => {

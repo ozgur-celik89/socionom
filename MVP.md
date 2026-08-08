@@ -312,12 +312,17 @@ Ett jobb ska kunna exkluderas när:
 - annonsen uppenbart riktar sig till en annan yrkesgrupp
 - den endast avser praktik, examensarbete eller utbildningsplats och detta inte är en avsiktlig kategori
 - annonsen saknar tillräcklig information för en riktig ansökan
+- annonsen avser ett uppdrag som familjehem i stället för en anställning
 
 ### Kvalitetskontroll
 
 Före lansering ska minst 200 representativa sökresultat granskas manuellt och klassas som relevanta eller irrelevanta. Reglerna justeras tills resultatet är tillräckligt träffsäkert för att inge förtroende.
 
 Säkra yrkesundantag ska i första hand skickas till JobSearch som negativa `occupation-name`-filter så att API:ts resultatantal och pagination fortsätter vara korrekta. En liten lokal kvalitetsregel får användas för uppenbart trasiga originaltitlar och ska då tillämpas konsekvent på listor, jobbsidor och sitemap.
+
+En redaktionell yrkessida får använda positiva `occupation-name`-filter när en yrkesgrupp är för bred. Kuratorsidan använder de verifierade benämningarna Kurator, Skolkurator och Hälso- och sjukvårdskurator så att Familjebehandlare inte visas som kuratorsträff.
+
+Källposter med olika Arbetsförmedlings-ID men samma ansökningstillfälle ska döljas som dubbletter i listor och, när den minimala sitemap-datan räcker för en säker matchning, i sitemap. Dedupliceringen ska vara konservativ och deterministisk. En gemensam extern ansöknings-URL kräver även samma normaliserade titel, arbetsgivare och sista ansökningsdag; i jobblistor kan poster utan direktlänk dedupliceras när de dessutom har samma ort och annonstext.
 
 ## Geografiskt urval
 
@@ -387,6 +392,8 @@ Utgångspunkt:
 - sökresultat: återvalidering efter `5–15 minuter`
 - jobbsidor: återvalidering efter `15–60 minuter`
 - sitemap: cachad och återvaliderad enligt en separat längre men rimlig period
+
+Startsidan får visa ett avrundat ungefärligt annonsantal eftersom dess ISR-cache och sökresultatens fetch-cache kan återvalideras vid olika tidpunkter. Jobblistans paginerade sidor ska använda ett separat minimalt, gemensamt cachat totalsvar så att samma sökning inte visar olika exakta API-totaler mellan sida 1 och sida 2. Varje vy ska endast hämta sin ordinarie resultatsida; lokalt bortvalda eller deduplicerade poster får ge en kortare sida i stället för att utlösa överhämtning och extra server-CPU.
 
 Exakta tider justeras efter API-beteende och behovet att ta bort utgångna jobb snabbt.
 

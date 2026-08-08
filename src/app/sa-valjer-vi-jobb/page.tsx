@@ -16,7 +16,8 @@ export default function SelectionPage() {
       <h2>Datakälla</h2>
       <p>Jobbannonserna hämtas från Arbetsförmedlingens öppna JobSearch-data. Annonsens arbetsgivare ansvarar för innehållet, villkoren och ansökningsprocessen.</p>
       <h2>Vår avgränsning</h2>
-      <p>Grundflödet omfattar yrkesgrupper som socialsekreterare, kuratorer, biståndsbedömare och övriga roller inom socialt arbete. För mer specifika sidor kombinerar vi yrkesgrupper med relevanta sökord.</p>
+      <p>Grundflödet omfattar yrkesgrupper som socialsekreterare, kuratorer, biståndsbedömare och övriga roller inom socialt arbete. För mer specifika sidor kombinerar vi yrkesgrupper med verifierade yrkesbenämningar och relevanta sökord.</p>
+      <p>Vi tar bort uppenbara dubbletter och annonser som gäller uppdrag som familjehem i stället för anställningar. Närliggande yrken, exempelvis familjehemssekreterare, finns fortfarande kvar när de matchar urvalet.</p>
       <div className="info-box">
         <strong>En annons kan hamna fel.</strong> Automatiska filter är inte perfekta. Kontrollera alltid kvalifikationskrav och övrig information i originalannonsen innan du ansöker.
       </div>

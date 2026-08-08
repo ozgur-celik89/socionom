@@ -66,6 +66,7 @@ export type SitemapJob = Pick<Job, "id" | "slug"> & {
 export type JobSearchFilters = {
   query?: string;
   occupationGroupIds?: string[];
+  occupationNameIds?: string[];
   regionId?: string;
   worktimeExtentId?: string;
   remote?: boolean;

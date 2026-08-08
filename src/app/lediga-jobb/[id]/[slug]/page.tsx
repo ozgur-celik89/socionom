@@ -63,6 +63,7 @@ export default async function JobDetailPage({ params }: Props) {
     const relatedResult = await searchJobs({
       query: occupation?.query,
       occupationGroupIds: occupation?.groupIds,
+      occupationNameIds: occupation?.occupationNameIds,
       regionId: region?.conceptId,
       pageSize: 4,
       sort: "pubdate-desc",

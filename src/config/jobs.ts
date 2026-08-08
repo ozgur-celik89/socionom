@@ -4,6 +4,7 @@ export type OccupationCategory = {
   shortLabel: string;
   description: string;
   groupIds: string[];
+  occupationNameIds?: string[];
   query?: string;
 };
 
@@ -13,6 +14,12 @@ export const occupationGroupIds = {
   bistandsbedomare: "5uP5_Ugw_aVE",
   socialtArbeteOvrigt: "n6iX_f2z_XfE",
   behandlingsassistenter: "BWwk_fYX_S5B",
+} as const;
+
+export const occupationNameIds = {
+  kurator: "YpRs_ybt_47a",
+  skolkurator: "31sh_tuy_pwG",
+  halsoOchSjukvardskurator: "UVvg_XmH_CA4",
 } as const;
 
 export const coreOccupationGroupIds = [
@@ -54,6 +61,11 @@ export const occupationCategories: OccupationCategory[] = [
     description:
       "Se kuratorstjänster inom bland annat vård, skola, företagshälsa och psykosocialt stöd.",
     groupIds: [occupationGroupIds.kuratorer],
+    occupationNameIds: [
+      occupationNameIds.kurator,
+      occupationNameIds.skolkurator,
+      occupationNameIds.halsoOchSjukvardskurator,
+    ],
   },
   {
     slug: "skolkurator",

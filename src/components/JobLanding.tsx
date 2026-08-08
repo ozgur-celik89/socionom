@@ -45,6 +45,7 @@ async function loadLandingJobs({ occupation, region, remote, page }: LandingSear
     return await searchJobs({
       query: occupation?.query,
       occupationGroupIds: occupation?.groupIds,
+      occupationNameIds: occupation?.occupationNameIds,
       regionId: region?.conceptId,
       remote,
       page,

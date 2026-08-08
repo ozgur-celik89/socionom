@@ -6,7 +6,7 @@ import { ArrowRightIcon } from "@/components/icons";
 import { priorityRegions } from "@/config/regions";
 import { occupationCategories } from "@/config/jobs";
 import { searchJobs } from "@/integrations/jobtech/search";
-import { formatNumber } from "@/lib/format";
+import { formatApproximateNumber } from "@/lib/format";
 
 export const revalidate = 600;
 
@@ -31,7 +31,7 @@ export default async function HomePage() {
           <div className="trust-line" aria-label="Om tjänsten">
             {searchResult ? (
               <span className="hero-job-count">
-                <strong>{formatNumber(searchResult.total)}</strong> aktuella annonser
+                <strong>Cirka {formatApproximateNumber(searchResult.total)}</strong> aktuella annonser
               </span>
             ) : null}
           </div>

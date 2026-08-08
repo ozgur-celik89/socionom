@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { hasMeaningfulJobTitle } from "./relevance";
+import { hasMeaningfulJobTitle, isEmploymentJobTitle } from "./relevance";
 
 describe("job title relevance", () => {
   it.each([
@@ -19,5 +19,10 @@ describe("job title relevance", () => {
     "Projekt- och samverkansansvarig",
   ])("keeps the real title %s", (title) => {
     expect(hasMeaningfulJobTitle(title)).toBe(true);
+  });
+
+  it("rejects a family-home assignment without rejecting family-home employee roles", () => {
+    expect(isEmploymentJobTitle("Familjehem")).toBe(false);
+    expect(isEmploymentJobTitle("Familjehemssekreterare")).toBe(true);
   });
 });

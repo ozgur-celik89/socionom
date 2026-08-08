@@ -10,6 +10,8 @@ const OCCUPATION_GROUP_IDS = [
 const TREATMENT_GROUP_ID = "BWwk_fYX_S5B";
 const EXCLUDED_OCCUPATION_NAME_IDS = [
   "NSEG_DmQ_waj", // Stödpedagog
+  "KJoL_2hp_Sa5", // Personligt ombud och dess felaktiga ersättningskedja
+  "Vq8N_Qvz_i4u", // Integrationshandläggare
 ];
 const selectedGroupIds = process.argv.includes("--treatment-only")
   ? [TREATMENT_GROUP_ID]
@@ -51,8 +53,11 @@ async function getPage(offset) {
   return response.json();
 }
 
-const pages = await Promise.all([getPage(0), getPage(100)]);
-const ads = pages.flatMap((page) => page.hits ?? []).slice(0, 200);
+const pages = await Promise.all([getPage(0), getPage(100), getPage(200)]);
+const ads = pages
+  .flatMap((page) => page.hits ?? [])
+  .filter((ad) => ad.headline?.trim().toLocaleLowerCase("sv-SE") !== "familjehem")
+  .slice(0, 200);
 
 const columns = [
   "id",
