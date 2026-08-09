@@ -12,11 +12,6 @@ export function formatNumber(value: number) {
   return numberFormatter.format(value);
 }
 
-export function formatApproximateNumber(value: number) {
-  const step = value >= 1_000 ? 100 : value >= 100 ? 10 : 1;
-  return numberFormatter.format(Math.round(value / step) * step);
-}
-
 export function formatDate(value?: string) {
   if (!value) return undefined;
   const date = new Date(value);

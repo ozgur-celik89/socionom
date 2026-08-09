@@ -10,6 +10,11 @@ function normalizeText(value?: string | null) {
     .trim() ?? "";
 }
 
+function normalizePostcode(value?: string | null) {
+  const digits = value?.replace(/\D+/g, "") ?? "";
+  return digits.length === 5 ? digits : "";
+}
+
 function normalizeApplicationUrl(value?: string | null) {
   if (!value) return "";
 
@@ -31,55 +36,101 @@ function normalizeApplicationUrl(value?: string | null) {
 }
 
 /**
- * Returns a conservative identity for records that represent the same
- * application opportunity despite having different JobSearch IDs.
+ * FNV-1a. Annonstexter är långa och används bara för att jämföra annonser med
+ * varandra, så en kort hash räcker och håller nere både minne och CPU.
  */
-export function getJobtechDeduplicationKey(ad: JobtechAd) {
-  const title = normalizeText(ad.headline);
-  const employer = normalizeText(ad.employer?.name?.trim() || ad.employer?.workplace);
-  const deadline = normalizeText(ad.application_deadline);
-  const applicationUrl = normalizeApplicationUrl(ad.application_details?.url);
+function hashText(value: string) {
+  let hash = 0x811c9dc5;
 
-  if (!title || !employer) return null;
-
-  if (applicationUrl) {
-    return ["application", title, employer, deadline, applicationUrl].join("|");
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193);
   }
 
-  const description = normalizeText(ad.description?.text?.trim() || ad.description?.text_formatted);
+  return (hash >>> 0).toString(36);
+}
+
+/**
+ * Returnerar alla identiteter en annons kan matchas på. Två annonser slås ihop
+ * så snart de delar minst en identitet.
+ *
+ * Grundregeln är att olika orter är olika tjänster: ett bemanningsuppdrag som
+ * publiceras i tretton städer ska synas i alla tretton. Undantaget är
+ * postnumret, som pekar ut den fysiska arbetsplatsen – när två poster delar
+ * postnummer är det samma tjänst även om Arbetsförmedlingen råkat märka dem
+ * med varsin kommun (arbetsgivarens säte kontra arbetsplatsens).
+ */
+export function getJobtechDeduplicationKeys(ad: JobtechAd) {
+  const title = normalizeText(ad.headline);
+  const employer = normalizeText(ad.employer?.name?.trim() || ad.employer?.workplace);
+
+  if (!title || !employer) return [];
+
+  const deadline = normalizeText(ad.application_deadline);
+  const identity = [title, employer, deadline];
   const location = normalizeText(
     ad.workplace_address?.municipality?.trim()
       || ad.workplace_address?.region?.trim()
       || ad.workplace_address?.country,
   );
+  const keys: string[] = [];
 
-  if (!description || !location) return null;
-  return ["content", title, employer, location, deadline, description].join("|");
+  const postcode = normalizePostcode(ad.workplace_address?.postcode);
+  if (postcode) keys.push(["place", ...identity, postcode].join("|"));
+
+  const applicationUrl = normalizeApplicationUrl(ad.application_details?.url);
+  if (applicationUrl) keys.push(["application", ...identity, location, applicationUrl].join("|"));
+
+  const description = normalizeText(ad.description?.text?.trim() || ad.description?.text_formatted);
+  if (description.length >= 200) {
+    keys.push(["content", ...identity, location, hashText(description)].join("|"));
+  }
+
+  if (keys.length === 0 && location) keys.push(["location", ...identity, location].join("|"));
+
+  return keys;
 }
 
 function shouldReplace(existing: JobtechAd, candidate: JobtechAd) {
   return (candidate.id ?? "").localeCompare(existing.id ?? "", "sv", { numeric: true }) > 0;
 }
 
-class JobtechAdDeduplicator {
+export type DeduplicationOutcome = {
+  /** Platsen i den avdubblade listan, så att anropare kan hålla egna register i takt. */
+  index: number;
+  created: boolean;
+  replaced: boolean;
+};
+
+export class JobtechAdDeduplicator {
   private readonly uniqueAds: JobtechAd[] = [];
   private readonly indexByKey = new Map<string, number>();
 
-  add(ad: JobtechAd) {
-    const key = getJobtechDeduplicationKey(ad);
-    if (!key) {
-      this.uniqueAds.push(ad);
-      return;
+  add(ad: JobtechAd): DeduplicationOutcome {
+    const keys = getJobtechDeduplicationKeys(ad);
+    let index: number | undefined;
+
+    for (const key of keys) {
+      index = this.indexByKey.get(key);
+      if (index !== undefined) break;
     }
 
-    const existingIndex = this.indexByKey.get(key);
-    if (existingIndex === undefined) {
-      this.indexByKey.set(key, this.uniqueAds.length);
+    if (index === undefined) {
+      index = this.uniqueAds.length;
       this.uniqueAds.push(ad);
-      return;
+      for (const key of keys) this.indexByKey.set(key, index);
+      return { index, created: true, replaced: false };
     }
 
-    if (shouldReplace(this.uniqueAds[existingIndex], ad)) this.uniqueAds[existingIndex] = ad;
+    // Nycklar som annonsen bidrar med gör att en tredje, delvis olik post kan
+    // kopplas till samma tjänst längre fram i strömmen.
+    for (const key of keys) {
+      if (!this.indexByKey.has(key)) this.indexByKey.set(key, index);
+    }
+
+    const replaced = shouldReplace(this.uniqueAds[index], ad);
+    if (replaced) this.uniqueAds[index] = ad;
+    return { index, created: false, replaced };
   }
 
   addMany(ads: JobtechAd[]) {

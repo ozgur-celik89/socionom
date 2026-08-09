@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { cache } from "react";
+import { Suspense, cache } from "react";
 import { notFound, permanentRedirect } from "next/navigation";
 import { ApplyButton } from "@/components/ApplyButton";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -7,15 +7,64 @@ import { JsonLd } from "@/components/JsonLd";
 import { JobList } from "@/components/JobList";
 import { ReportJobLink } from "@/components/ReportJobLink";
 import { BriefcaseIcon, CalendarIcon, ClockIcon, MapPinIcon } from "@/components/icons";
-import { getBestOccupationCategory } from "@/config/jobs";
-import { getRegionByConceptId } from "@/config/regions";
+import { getBestOccupationCategory, type OccupationCategory } from "@/config/jobs";
+import { getRegionByConceptId, type Region } from "@/config/regions";
 import type { JobSummary } from "@/domain/jobs/types";
 import { getJobById, searchJobs } from "@/integrations/jobtech/search";
 import { formatDate, formatScope } from "@/lib/format";
 import { breadcrumbJsonLd, jobPostingJsonLd } from "@/lib/seo";
 
 type Props = { params: Promise<{ id: string; slug: string }> };
+type RelatedJobsProps = {
+  currentJobId: string;
+  occupation?: OccupationCategory;
+  region?: Region;
+};
+
 const getRequestJobById = cache(getJobById);
+
+/**
+ * Egen strömningsgräns. Utan den delas korten upp i fragment som fylls i var
+ * för sig, och ett kort kan hinna visas utan rubrik och arbetsgivare.
+ */
+async function RelatedJobs({ currentJobId, occupation, region }: RelatedJobsProps) {
+  let relatedJobs: JobSummary[] = [];
+
+  try {
+    const relatedResult = await searchJobs({
+      query: occupation?.query,
+      occupationGroupIds: occupation?.groupIds,
+      occupationNameIds: occupation?.occupationNameIds,
+      regionId: region?.conceptId,
+      pageSize: 4,
+      sort: "pubdate-desc",
+    });
+    relatedJobs = relatedResult.jobs.filter((item) => item.id !== currentJobId).slice(0, 3);
+  } catch {
+    return null;
+  }
+
+  if (relatedJobs.length === 0) return null;
+
+  return (
+    <section aria-labelledby="related-jobs-title" className="related-jobs">
+      <div className="section-header">
+        <div>
+          <h2 id="related-jobs-title">Liknande jobb</h2>
+        </div>
+      </div>
+      <JobList
+        analyticsContext={{
+          source: "related_jobs",
+          occupation: occupation?.slug,
+          region: region?.slug,
+          sort: "senaste",
+        }}
+        jobs={relatedJobs}
+      />
+    </section>
+  );
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
@@ -57,22 +106,6 @@ export default async function JobDetailPage({ params }: Props) {
     ? [location.streetAddress, postalLocality].filter(Boolean).join(", ")
     : locationLabel;
   const scope = formatScope(job.scopeMin, job.scopeMax);
-  let relatedJobs: JobSummary[] = [];
-
-  try {
-    const relatedResult = await searchJobs({
-      query: occupation?.query,
-      occupationGroupIds: occupation?.groupIds,
-      occupationNameIds: occupation?.occupationNameIds,
-      regionId: region?.conceptId,
-      pageSize: 4,
-      sort: "pubdate-desc",
-    });
-    relatedJobs = relatedResult.jobs.filter((item) => item.id !== job.id).slice(0, 3);
-  } catch {
-    relatedJobs = [];
-  }
-
   const breadcrumbs = [
     { label: "Start", href: "/" },
     { label: "Lediga jobb", href: "/lediga-jobb" },
@@ -127,24 +160,9 @@ export default async function JobDetailPage({ params }: Props) {
               </div>
             </aside>
           </div>
-          {relatedJobs.length > 0 && (
-            <section aria-labelledby="related-jobs-title" className="related-jobs">
-              <div className="section-header">
-                <div>
-                  <h2 id="related-jobs-title">Liknande jobb</h2>
-                </div>
-              </div>
-              <JobList
-                analyticsContext={{
-                  source: "related_jobs",
-                  occupation: occupation?.slug,
-                  region: region?.slug,
-                  sort: "senaste",
-                }}
-                jobs={relatedJobs}
-              />
-            </section>
-          )}
+          <Suspense fallback={null}>
+            <RelatedJobs currentJobId={job.id} occupation={occupation} region={region} />
+          </Suspense>
         </div>
       </section>
       <JsonLd data={breadcrumbJsonLd(breadcrumbs)} />
