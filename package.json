@@ -12,7 +12,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:smoke": "vitest run --config vitest.smoke.config.ts"
   },
   "engines": {
     "node": ">=20.9.0"

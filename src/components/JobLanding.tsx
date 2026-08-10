@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import type { BreadcrumbItem } from "./Breadcrumbs";
 import { occupationCategories, type OccupationCategory } from "@/config/jobs";
-import { priorityRegions, type Region } from "@/config/regions";
+import { regions, type Region } from "@/config/regions";
 import type { JobSearchResult } from "@/domain/jobs/types";
 import { searchJobs } from "@/integrations/jobtech/search";
+import { landingFilters } from "@/lib/landing";
 import { breadcrumbJsonLd } from "@/lib/seo";
 import { Breadcrumbs } from "./Breadcrumbs";
 import { EmployerCallout, ApiErrorState, JobResultsSkeleton } from "./States";
@@ -42,15 +42,7 @@ function landingAnalyticsContext({ occupation, region, remote }: LandingSearch):
 
 async function loadLandingJobs({ occupation, region, remote, page }: LandingSearch) {
   try {
-    return await searchJobs({
-      query: occupation?.query,
-      occupationGroupIds: occupation?.groupIds,
-      occupationNameIds: occupation?.occupationNameIds,
-      regionId: region?.conceptId,
-      remote,
-      page,
-      sort: "pubdate-desc",
-    });
+    return await searchJobs({ ...landingFilters({ occupation, region, remote }), page });
   } catch {
     return null;
   }
@@ -95,7 +87,7 @@ async function DeferredLandingResults(props: LandingSearch & { basePath: string 
   );
 }
 
-export async function JobLanding({
+export function JobLanding({
   title,
   description,
   basePath,
@@ -104,7 +96,6 @@ export async function JobLanding({
   region,
   remote = false,
   breadcrumbs,
-  emptyAsNotFound = false,
 }: {
   title: string;
   description: string;
@@ -114,21 +105,14 @@ export async function JobLanding({
   region?: Region;
   remote?: boolean;
   breadcrumbs: BreadcrumbItem[];
-  emptyAsNotFound?: boolean;
 }) {
   const landingSearch = { occupation, region, remote, page };
-  const analyticsContext = landingAnalyticsContext(landingSearch);
-  const headingContext = {
-    occupationLabel: occupation?.shortLabel,
-    regionLabel: region?.shortLabel,
-    remote,
-  };
-  const verifiedResult = emptyAsNotFound ? await loadLandingJobs(landingSearch) : undefined;
 
-  if (verifiedResult?.total === 0) notFound();
-
+  // Alla län listas, inte bara de största. Tröskeln i lib/landing avgör vad som
+  // hamnar i index, så en kombination utan träffar möter sitt tomma tillstånd
+  // i stället för att bli en död länk.
   const relatedLinks = occupation && !region
-    ? priorityRegions.map((item) => ({
+    ? regions.map((item) => ({
         href: `/lediga-jobb/yrke/${occupation.slug}/${item.slug}`,
         label: `${occupation.shortLabel} i ${item.shortLabel}`,
       }))
@@ -158,18 +142,9 @@ export async function JobLanding({
               sort: "senaste",
             }}
           />
-          {emptyAsNotFound ? (
-            <LandingResults
-              analyticsContext={analyticsContext}
-              basePath={basePath}
-              headingContext={headingContext}
-              result={verifiedResult ?? null}
-            />
-          ) : (
-            <Suspense fallback={<JobResultsSkeleton />} key={`${basePath}:${page}`}>
-              <DeferredLandingResults {...landingSearch} basePath={basePath} />
-            </Suspense>
-          )}
+          <Suspense fallback={<JobResultsSkeleton />} key={`${basePath}:${page}`}>
+            <DeferredLandingResults {...landingSearch} basePath={basePath} />
+          </Suspense>
           {relatedLinks.length > 0 && (
             <nav aria-labelledby="related-landing-title" className="landing-links">
               <h2 id="related-landing-title">

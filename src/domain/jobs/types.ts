@@ -81,4 +81,10 @@ export type JobSearchResult = {
   page: number;
   pageSize: number;
   totalPages: number;
+  /**
+   * Annonser i samma sökning hos Arbetsförmedlingen som vi valt bort:
+   * dubbletter, utgångna och sådana som saknar det en annons behöver.
+   * Utelämnas när katalogen inte kunde se hela träfflistan.
+   */
+  filteredOut?: number;
 };

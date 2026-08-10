@@ -2,6 +2,13 @@ import type { Job } from "@/domain/jobs/types";
 import type { BreadcrumbItem } from "@/components/Breadcrumbs";
 import { siteConfig } from "@/config/site";
 
+/**
+ * Kombinationssidorna för yrke och region är bara meningsfulla i index när de
+ * har tillräckligt med annonser för att svara på det besökaren sökte efter. En
+ * sida med ett par träffar är tunn och drar ner sajtens kvalitet som helhet.
+ */
+export const MIN_INDEXABLE_JOB_COUNT = 5;
+
 const TEMPORARY_EMPLOYMENT_TYPE_IDS = new Set([
   "sTu5_NBQ_udq", // Tidsbegränsad anställning
   "gro4_cWF_6D7", // Vikariat

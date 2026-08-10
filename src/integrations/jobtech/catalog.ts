@@ -1,4 +1,5 @@
 import { unstable_cache } from "next/cache";
+import { cache } from "react";
 import type { JobSearchFilters } from "@/domain/jobs/types";
 import { MAX_FETCH_LIMIT, MAX_OFFSET, buildSearchUrl, fetchJobtech, normalizeQuery } from "./client";
 import { JobtechAdDeduplicator } from "./deduplication";
@@ -27,6 +28,8 @@ export type CatalogEntry = {
 
 export type JobCatalog = {
   entries: CatalogEntry[];
+  /** Antalet träffar JobSearch rapporterar, före våra egna kontroller. */
+  sourceTotal: number;
   /** True när JobSearch har fler träffar än vi kan nå via offset-taket. */
   truncated: boolean;
 };
@@ -92,7 +95,11 @@ async function scanCatalog(filters: JobSearchFilters): Promise<JobCatalog> {
     for (const [index, page] of pages.entries()) collect(deduplicator, entries, page.hits, batch[index]);
   }
 
-  return { entries, truncated: firstPage.total > MAX_CATALOG_RECORDS };
+  return {
+    entries,
+    sourceTotal: firstPage.total,
+    truncated: firstPage.total > MAX_CATALOG_RECORDS,
+  };
 }
 
 const getCachedCatalog = unstable_cache(
@@ -102,19 +109,29 @@ const getCachedCatalog = unstable_cache(
 );
 
 /**
+ * unstable_cache slår upp posten på nytt för varje anropare, så en kall post
+ * skannas en gång per anrop. Sidan och dess generateMetadata frågar efter samma
+ * katalog i samma request – React-cachen ser till att de delar en skanning.
+ */
+const getRequestCatalog = cache(getCachedCatalog);
+
+/**
  * Katalogen delas mellan alla sidor med samma filter, så bara den första
  * begäran under ett revalidate-fönster betalar för skanningen.
  */
 export function getJobCatalog(filters: JobSearchFilters): Promise<JobCatalog> {
   // Fälten listas i fast ordning så att samma filter alltid ger samma
   // cache-nyckel, oavsett i vilken ordning anroparen satte dem.
-  return getCachedCatalog(JSON.stringify({
+  return getRequestCatalog(JSON.stringify({
     query: normalizeQuery(filters.query),
     occupationGroupIds: filters.occupationGroupIds,
     occupationNameIds: filters.occupationNameIds,
     regionId: filters.regionId,
     worktimeExtentId: filters.worktimeExtentId,
-    remote: filters.remote,
+    // JSON.stringify utelämnar undefined. Utan normaliseringen får ett utelämnat
+    // remote en annan nyckel än remote: false, trots att sökningen är identisk –
+    // och startsidan skannar då samma annonser som en ofiltrerad /lediga-jobb.
+    remote: filters.remote ?? false,
     sort: filters.sort,
   }));
 }

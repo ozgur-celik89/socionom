@@ -46,6 +46,40 @@ describe("job slug proxy", () => {
   });
 
   it.each([
+    "/lediga-jobb/yrke/finns-inte",
+    "/lediga-jobb/yrke/finns-inte/skane",
+    "/lediga-jobb/yrke/kurator/finns-inte",
+    "/lediga-jobb/ort/finns-inte",
+  ])("returns HTTP 404 for the unknown landing page %s", async (path) => {
+    // Sidans egen notFound() hinner inte sätta statuskoden när svaret redan
+    // strömmar, så en okänd slug skulle annars bli en mjuk 404.
+    const response = await proxy(new NextRequest(`https://socionom.se${path}`));
+
+    expect(response.status).toBe(404);
+    expect(response.headers.get("x-middleware-rewrite")).toBe("https://socionom.se/_not-found");
+    expect(getCanonicalJobSlug).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    "/lediga-jobb/yrke/kurator",
+    "/lediga-jobb/yrke/kurator/skane",
+    "/lediga-jobb/ort/uppsala",
+  ])("lets the known landing page %s through", async (path) => {
+    const response = await proxy(new NextRequest(`https://socionom.se${path}`));
+
+    expect(response.headers.get("x-middleware-next")).toBe("1");
+  });
+
+  it("leaves an unknown slug to the page during client navigation", async () => {
+    const response = await proxy(new NextRequest(
+      "https://socionom.se/lediga-jobb/yrke/finns-inte",
+      { headers: { rsc: "1" } },
+    ));
+
+    expect(response.headers.get("x-middleware-next")).toBe("1");
+  });
+
+  it.each([
     ["an RSC navigation", { rsc: "1" }],
     ["a route prefetch", { "next-router-prefetch": "1" }],
     ["a segment prefetch", { "next-router-segment-prefetch": "/_tree" }],

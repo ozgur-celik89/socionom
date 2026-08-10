@@ -346,3 +346,36 @@ describe("JobSearch request", () => {
   });
 
 });
+
+describe("bortvalda annonser", () => {
+  it("räknar hur många av källans träffar som inte kom med", async () => {
+    // Två uppdrag som inte är anställningar och en dubblett av den riktiga.
+    // Dubbletten delar ansökningslänk, vilket är det katalogen matchar på.
+    vi.stubGlobal("fetch", stubJobSearch([
+      validAd({ id: "riktig", applicationUrl: "https://example.se/ansok/1" }),
+      validAd({ id: "dubblett", applicationUrl: "https://example.se/ansok/1" }),
+      validAd({ id: "uppdrag-1", headline: "Familjehem" }),
+      validAd({ id: "uppdrag-2", headline: "familjehem" }),
+    ]));
+
+    const result = await searchJobs();
+
+    expect(result.total).toBe(1);
+    expect(result.filteredOut).toBe(3);
+  });
+
+  it("håller tyst när träfflistan är längre än katalogen kan nå", async () => {
+    vi.stubGlobal("fetch", vi.fn(async (url: URL) => ({
+      ok: true,
+      json: async () => ({
+        // Över offset-taket: skillnaden mot listan skulle vara påhittad.
+        total: { value: 5_000 },
+        hits: Number(url.searchParams.get("offset") ?? "0") === 0 ? [validAd()] : [],
+      }),
+    })));
+
+    const result = await searchJobs();
+
+    expect(result.filteredOut).toBeUndefined();
+  });
+});

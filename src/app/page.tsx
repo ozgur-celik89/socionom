@@ -34,6 +34,7 @@ export default async function HomePage() {
                 <strong>{formatNumber(searchResult.total)}</strong> aktuella annonser
               </span>
             ) : null}
+            <span className="hero-job-note">Bara jobb inom socialt arbete</span>
           </div>
           <nav aria-label="Sök jobb efter yrkesområde" className="occupation-navigation" id="yrkesomraden">
             <strong>Yrkesområden</strong>

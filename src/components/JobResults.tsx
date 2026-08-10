@@ -1,4 +1,6 @@
+import Link from "next/link";
 import type { JobSearchResult } from "@/domain/jobs/types";
+import { formatNumber } from "@/lib/format";
 import { JobList } from "./JobList";
 import { Pagination } from "./Pagination";
 import { EmptyJobsState } from "./States";
@@ -55,6 +57,13 @@ export function JobResults({
     <>
       <div className="results-heading">
         <h2>{getJobResultsHeading(result.total, headingContext)}</h2>
+        {result.filteredOut ? (
+          <p className="results-curation">
+            {formatNumber(result.filteredOut)} annonser i samma sökning valdes bort –
+            familjehemsuppdrag, dubbletter och utgångna annonser.{" "}
+            <Link href="/sa-valjer-vi-jobb">Så väljer vi jobb</Link>
+          </p>
+        ) : null}
       </div>
       {result.jobs.length > 0 ? (
         <>

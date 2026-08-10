@@ -69,8 +69,10 @@ export async function searchJobs(filters: JobSearchFilters = {}): Promise<JobSea
   const totalPages = Math.max(Math.ceil(total / pageSize), 1);
   const page = Math.min(Math.max(filters.page ?? 1, 1), totalPages);
   const entries = catalog.entries.slice((page - 1) * pageSize, page * pageSize);
+  // Skillnaden mot källan är bara sann när hela träfflistan hunnit skannas.
+  const filteredOut = catalog.truncated ? undefined : Math.max(catalog.sourceTotal - total, 0);
 
-  if (entries.length === 0) return { jobs: [], total, page, pageSize, totalPages };
+  if (entries.length === 0) return { jobs: [], total, page, pageSize, totalPages, filteredOut };
 
   const adsById = await fetchWindowForEntries(filters, entries);
   const jobs = entries
@@ -79,7 +81,16 @@ export async function searchJobs(filters: JobSearchFilters = {}): Promise<JobSea
     .map(mapJobtechAdSummary)
     .filter((job): job is JobSummary => job !== null);
 
-  return { jobs, total, page, pageSize, totalPages };
+  return { jobs, total, page, pageSize, totalPages, filteredOut };
+}
+
+/**
+ * Antalet träffar utan att hämta en enda annonstext. Katalogen är redan cachad
+ * per filter, så en sida som ändå listar jobben betalar ingenting extra.
+ */
+export async function countJobs(filters: JobSearchFilters = {}) {
+  const catalog = await getJobCatalog(filters);
+  return catalog.entries.length;
 }
 
 export async function getJobById(id: string) {

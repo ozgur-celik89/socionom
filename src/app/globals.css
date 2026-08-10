@@ -431,6 +431,13 @@ summary {
   white-space: nowrap;
 }
 
+/* Egen rad under antalet: meningen är för lång för att stå bredvid det.
+   Ingen max-width här – den skulle krympa elementets hypotetiska bredd, och
+   då ryms raden bredvid antalet igen och brytningen uteblir. */
+.trust-line .hero-job-note {
+  flex-basis: 100%;
+}
+
 .hero-job-count strong {
   color: inherit;
   font-size: inherit;
@@ -659,6 +666,7 @@ summary {
 .results-heading {
   align-items: baseline;
   display: flex;
+  flex-wrap: wrap;
   gap: 0.7rem;
   justify-content: space-between;
   margin: 1.9rem 0 1rem;
@@ -674,6 +682,20 @@ summary {
   color: var(--color-text-muted);
   font-size: 0.9rem;
   margin: 0;
+}
+
+/* Egen rad under rubriken: texten är för lång för att samsas med antalet. */
+.results-curation {
+  flex-basis: 100%;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  max-width: 62ch;
+}
+
+.results-curation a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
 }
 
 .job-list {

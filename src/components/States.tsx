@@ -1,5 +1,6 @@
 import { AlertIcon, ArrowRightIcon } from "./icons";
 import { TrackedLink, ZeroResultsTracker } from "./AnalyticsEvents";
+import { RetryButton } from "./RetryButton";
 import Link from "next/link";
 
 export function JobResultsSkeleton() {
@@ -54,7 +55,7 @@ export function ApiErrorState() {
       <div className="state-icon"><AlertIcon /></div>
       <h2>Jobben kunde inte hämtas just nu</h2>
       <p>Arbetsförmedlingens tjänst svarar inte. Försök gärna igen om en liten stund.</p>
-      <a className="button button-secondary" href="">Försök igen</a>
+      <RetryButton />
     </div>
   );
 }
