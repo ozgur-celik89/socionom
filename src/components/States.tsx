@@ -3,6 +3,40 @@ import { TrackedLink, ZeroResultsTracker } from "./AnalyticsEvents";
 import { RetryButton } from "./RetryButton";
 import Link from "next/link";
 
+function JobCardSkeleton() {
+  return (
+    <div className="job-card job-card-skeleton">
+      <div className="skeleton-topline">
+        <span className="skeleton-line skeleton-badge" />
+        <span className="skeleton-line skeleton-source" />
+      </div>
+      <div>
+        <span className="skeleton-line skeleton-title" />
+        <span className="skeleton-line skeleton-employer" />
+      </div>
+      <div className="skeleton-meta">
+        <span className="skeleton-line" />
+        <span className="skeleton-line" />
+        <span className="skeleton-line" />
+      </div>
+      <div className="skeleton-footer">
+        <span className="skeleton-line" />
+        <span className="skeleton-line" />
+      </div>
+    </div>
+  );
+}
+
+export function JobListSkeleton({ count = 3 }: { count?: number }) {
+  return (
+    <div aria-hidden="true" className="job-list">
+      {Array.from({ length: count }, (_, index) => (
+        <JobCardSkeleton key={index} />
+      ))}
+    </div>
+  );
+}
+
 export function JobResultsSkeleton() {
   return (
     <div aria-busy="true" aria-live="polite" className="job-results-loading">
@@ -10,29 +44,7 @@ export function JobResultsSkeleton() {
         <h2>Lediga jobb</h2>
         <p>Hämtar aktuella jobb…</p>
       </div>
-      <div aria-hidden="true" className="job-list">
-        {Array.from({ length: 3 }, (_, index) => (
-          <div className="job-card job-card-skeleton" key={index}>
-            <div className="skeleton-topline">
-              <span className="skeleton-line skeleton-badge" />
-              <span className="skeleton-line skeleton-source" />
-            </div>
-            <div>
-              <span className="skeleton-line skeleton-title" />
-              <span className="skeleton-line skeleton-employer" />
-            </div>
-            <div className="skeleton-meta">
-              <span className="skeleton-line" />
-              <span className="skeleton-line" />
-              <span className="skeleton-line" />
-            </div>
-            <div className="skeleton-footer">
-              <span className="skeleton-line" />
-              <span className="skeleton-line" />
-            </div>
-          </div>
-        ))}
-      </div>
+      <JobListSkeleton />
     </div>
   );
 }

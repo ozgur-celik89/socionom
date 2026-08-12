@@ -17,6 +17,7 @@ export function Logo({ withMark = false }: LogoProps) {
           alt=""
           className="logo-image"
           height={64}
+          preload
           src="/socionom-logo.svg"
           unoptimized
           width={349}

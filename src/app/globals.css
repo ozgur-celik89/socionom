@@ -431,6 +431,11 @@ summary {
   white-space: nowrap;
 }
 
+.hero-job-count-placeholder {
+  min-width: 11rem;
+  visibility: hidden;
+}
+
 /* Egen rad under antalet: meningen är för lång för att stå bredvid det.
    Ingen max-width här – den skulle krympa elementets hypotetiska bredd, och
    då ryms raden bredvid antalet igen och brytningen uteblir. */
@@ -707,6 +712,10 @@ summary {
 }
 
 .job-results-loading {
+  min-height: 520px;
+}
+
+.home-job-list-loading {
   min-height: 520px;
 }
 
@@ -1355,31 +1364,6 @@ summary {
   justify-content: center;
 }
 
-.loading-state {
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 60vh;
-}
-
-.loading-state p {
-  color: var(--color-text-muted);
-}
-
-.loading-spinner {
-  animation: spin 700ms linear infinite;
-  border: 3px solid var(--color-border);
-  border-radius: 999px;
-  border-top-color: var(--color-primary);
-  height: 34px;
-  width: 34px;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
 .site-footer {
   background: var(--color-shell);
   color: white;
@@ -1607,7 +1591,7 @@ summary {
     min-height: 470px;
   }
 
-  .job-list .job-card-skeleton:nth-child(3) {
+  .job-results-loading .job-card-skeleton:nth-child(n + 3) {
     display: none;
   }
 

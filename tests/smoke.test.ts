@@ -98,6 +98,17 @@ describe("varje sidtyp renderar", () => {
     expect(response.status).toBe(200);
     expect(await response.text()).toContain(marker);
   }, 90_000);
+
+  it("skickar startsidans stabila innehåll före sidfoten", async () => {
+    const html = await (await fetch(BASE)).text();
+    const heroIndex = html.indexOf('class="home-hero"');
+    const latestJobsIndex = html.indexOf("Senaste socionomjobben");
+    const footerIndex = html.indexOf('class="site-footer"');
+
+    expect(heroIndex).toBeGreaterThanOrEqual(0);
+    expect(latestJobsIndex).toBeGreaterThan(heroIndex);
+    expect(footerIndex).toBeGreaterThan(latestJobsIndex);
+  }, 90_000);
 });
 
 describe("sökningen", () => {

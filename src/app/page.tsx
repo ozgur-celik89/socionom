@@ -1,7 +1,8 @@
 import Link from "next/link";
+import { cache, Suspense } from "react";
 import { JobList } from "@/components/JobList";
 import { SearchForm } from "@/components/SearchForm";
-import { ApiErrorState, EmployerCallout } from "@/components/States";
+import { ApiErrorState, EmployerCallout, JobListSkeleton } from "@/components/States";
 import { ArrowRightIcon } from "@/components/icons";
 import { priorityRegions } from "@/config/regions";
 import { occupationCategories } from "@/config/jobs";
@@ -10,15 +11,56 @@ import { formatNumber } from "@/lib/format";
 
 export const revalidate = 600;
 
-export default async function HomePage() {
-  let searchResult = null;
-
+const getHomeSearchResult = cache(async () => {
   try {
-    searchResult = await searchJobs({ pageSize: 6, sort: "pubdate-desc" });
+    return await searchJobs({ pageSize: 6, sort: "pubdate-desc" });
   } catch {
-    searchResult = null;
+    return null;
   }
+});
 
+function HeroJobCountPlaceholder() {
+  return (
+    <span aria-hidden="true" className="hero-job-count hero-job-count-placeholder">
+      000 aktuella annonser
+    </span>
+  );
+}
+
+async function HeroJobCount() {
+  const searchResult = await getHomeSearchResult();
+
+  if (!searchResult) return <HeroJobCountPlaceholder />;
+
+  return (
+    <span className="hero-job-count">
+      <strong>{formatNumber(searchResult.total)}</strong> aktuella annonser
+    </span>
+  );
+}
+
+async function LatestJobs() {
+  const searchResult = await getHomeSearchResult();
+
+  if (!searchResult) return <ApiErrorState />;
+
+  return (
+    <JobList
+      analyticsContext={{ source: "home_latest", sort: "senaste" }}
+      jobs={searchResult.jobs}
+    />
+  );
+}
+
+function LatestJobsFallback() {
+  return (
+    <div aria-busy="true" aria-label="Hämtar aktuella jobb" className="home-job-list-loading">
+      <JobListSkeleton count={6} />
+    </div>
+  );
+}
+
+export default function HomePage() {
   return (
     <>
       <section className="home-hero">
@@ -29,11 +71,9 @@ export default async function HomePage() {
           </div>
           <SearchForm variant="hero" />
           <div className="trust-line" aria-label="Om tjänsten">
-            {searchResult ? (
-              <span className="hero-job-count">
-                <strong>{formatNumber(searchResult.total)}</strong> aktuella annonser
-              </span>
-            ) : null}
+            <Suspense fallback={<HeroJobCountPlaceholder />}>
+              <HeroJobCount />
+            </Suspense>
             <span className="hero-job-note">Bara jobb inom socialt arbete</span>
           </div>
           <nav aria-label="Sök jobb efter yrkesområde" className="occupation-navigation" id="yrkesomraden">
@@ -58,12 +98,9 @@ export default async function HomePage() {
             </div>
             <Link className="text-link" href="/lediga-jobb">Visa alla jobb <ArrowRightIcon /></Link>
           </div>
-          {searchResult ? (
-            <JobList
-              analyticsContext={{ source: "home_latest", sort: "senaste" }}
-              jobs={searchResult.jobs}
-            />
-          ) : <ApiErrorState />}
+          <Suspense fallback={<LatestJobsFallback />}>
+            <LatestJobs />
+          </Suspense>
         </div>
       </section>
 
