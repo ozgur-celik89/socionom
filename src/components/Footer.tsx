@@ -46,7 +46,6 @@ export function Footer() {
 
       <div className="site-container footer-bottom">
         <p>© {new Date().getFullYear()} socionom.se</p>
-        <p>Jobbdata från Arbetsförmedlingens öppna data (CC0).</p>
       </div>
     </footer>
   );

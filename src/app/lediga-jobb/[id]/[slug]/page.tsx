@@ -85,6 +85,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: `/lediga-jobb/${job.id}/${job.slug}`,
       publishedTime: job.publishedAt,
       modifiedTime: job.sourceUpdatedAt,
+      images: [
+        {
+          url: "/opengraph-image",
+          width: 1200,
+          height: 630,
+          alt: "socionom.se – lediga jobb för socionomer i hela Sverige",
+        },
+      ],
     },
   };
 }

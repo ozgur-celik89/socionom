@@ -16,7 +16,6 @@ export default function AboutPage() {
     >
       <h2>En tydligare väg till relevanta jobb</h2>
       <p>Vår idé är enkel: samla relevanta jobb på ett ställe och presentera dem på ett lugnt, tydligt och lättanvänt sätt. Tjänsten är kostnadsfri för arbetssökande.</p>
-      <p>I den första versionen hämtas jobb från Arbetsförmedlingens öppna JobSearch-data. Socionom.se är inte en del av eller en officiell tjänst från Arbetsförmedlingen.</p>
       <h2>En tjänst som får växa med målgruppen</h2>
       <p>Vi börjar med bra jobbsökning. Längre fram kan tjänsten kompletteras med redaktionellt innehåll, bevakningar och möjligheter för arbetsgivare att nå en relevant målgrupp.</p>
       <p>Vill du lämna synpunkter? <Link href="/kontakt">Kontakta oss gärna</Link>.</p>
