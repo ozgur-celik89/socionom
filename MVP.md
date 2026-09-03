@@ -267,11 +267,12 @@ Jobbsidan ska inte ha en separat källruta eller länk till originalannonsen. `A
 
 1. Socialsekreterare
 2. Kurator
-3. Skolkurator
-4. Biståndshandläggare
-5. LSS-handläggare
-6. Familjebehandlare
-7. Behandlingsassistent
+3. Biståndshandläggare
+4. LSS-handläggare
+5. Familjebehandlare
+6. Behandlingsassistent
+
+Skolkurator och hälso- och sjukvårdskurator ingår i den gemensamma kategorin Kurator i stället för att vara egna jobbkategorier.
 
 Kategorierna relaterar huvudsakligen till SSYK-grupperna:
 
@@ -320,7 +321,7 @@ Före lansering ska minst 200 representativa sökresultat granskas manuellt och 
 
 Säkra yrkesundantag ska i första hand skickas till JobSearch som negativa `occupation-name`-filter så att API:ts resultatantal och pagination fortsätter vara korrekta. En liten lokal kvalitetsregel får användas för uppenbart trasiga originaltitlar och ska då tillämpas konsekvent på listor, jobbsidor och sitemap.
 
-En redaktionell yrkessida får använda positiva `occupation-name`-filter när en yrkesgrupp är för bred. Kuratorsidan använder de verifierade benämningarna Kurator, Skolkurator och Hälso- och sjukvårdskurator så att Familjebehandlare inte visas som kuratorsträff.
+En redaktionell yrkessida får använda positiva `occupation-name`-filter när en yrkesgrupp är för bred. Den gemensamma Kurator-sidan använder de verifierade benämningarna Kurator, Skolkurator och Hälso- och sjukvårdskurator så att alla kuratorsinriktningar samlas utan att Familjebehandlare visas som kuratorsträff.
 
 Källposter med olika Arbetsförmedlings-ID men samma ansökningstillfälle ska döljas som dubbletter i listor och, när den minimala sitemap-datan räcker för en säker matchning, i sitemap. Dedupliceringen ska vara konservativ och deterministisk. En gemensam extern ansöknings-URL kräver även samma normaliserade titel, arbetsgivare och sista ansökningsdag; i jobblistor kan poster utan direktlänk dedupliceras när de dessutom har samma ort och annonstext.
 

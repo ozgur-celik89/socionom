@@ -41,11 +41,14 @@ describe("getBestOccupationCategory", () => {
   const socialsekreterare = [occupationGroupIds.socialsekreterare];
   const kuratorer = [occupationGroupIds.kuratorer];
 
-  it("prefers the most specific title term over a shorter one it contains", () => {
+  it("keeps every curator specialization in the shared curator category", () => {
     expect(getBestOccupationCategory("Skolkurator till Bobergsskolan", kuratorer)?.slug)
-      .toBe("skolkurator");
+      .toBe("kurator");
     expect(getBestOccupationCategory("Kurator till elevhälsan", kuratorer)?.slug)
       .toBe("kurator");
+    expect(getBestOccupationCategory("Hälso- och sjukvårdskurator", kuratorer)?.slug)
+      .toBe("kurator");
+    expect(getOccupationCategory("skolkurator")).toBeUndefined();
   });
 
   it("does not let the generic word socionom decide the category", () => {

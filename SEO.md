@@ -137,9 +137,10 @@ Skapa landningssidor för roller som är centrala för målgruppen:
 /lediga-jobb/yrke/bistandshandlaggare
 /lediga-jobb/yrke/familjebehandlare
 /lediga-jobb/yrke/behandlingsassistent
-/lediga-jobb/yrke/skolkurator
 /lediga-jobb/yrke/lss-handlaggare
 ```
+
+Kurator, skolkurator och hälso- och sjukvårdskurator samlas på `/lediga-jobb/yrke/kurator`. Den tidigare adressen `/lediga-jobb/yrke/skolkurator`, inklusive regionala varianter, omdirigeras permanent till motsvarande Kurator-sida. Redaktionellt innehåll om att arbeta som skolkurator kan ligga kvar på en separat yrkesguide eftersom den sidan besvarar andra frågor än jobblistan.
 
 Varje sida ska innehålla:
 

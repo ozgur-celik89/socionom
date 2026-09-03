@@ -25,6 +25,26 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/jobb/yrke/skolkurator",
+        destination: "/lediga-jobb/yrke/kurator",
+        permanent: true,
+      },
+      {
+        source: "/jobb/yrke/skolkurator/:region",
+        destination: "/lediga-jobb/yrke/kurator/:region",
+        permanent: true,
+      },
+      {
+        source: "/lediga-jobb/yrke/skolkurator",
+        destination: "/lediga-jobb/yrke/kurator",
+        permanent: true,
+      },
+      {
+        source: "/lediga-jobb/yrke/skolkurator/:region",
+        destination: "/lediga-jobb/yrke/kurator/:region",
+        permanent: true,
+      },
+      {
         source: "/jobb",
         destination: "/lediga-jobb",
         permanent: true,

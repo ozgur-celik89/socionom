@@ -77,16 +77,6 @@ export const occupationCategories: OccupationCategory[] = [
     titleTerms: ["kurator"],
   },
   {
-    slug: "skolkurator",
-    label: "Skolkurator",
-    shortLabel: "Skolkurator",
-    description:
-      "Sök tjänster som skolkurator inom grundskola, gymnasium och elevhälsa.",
-    groupIds: [occupationGroupIds.kuratorer],
-    query: "skolkurator",
-    titleTerms: ["skolkurator"],
-  },
-  {
     slug: "bistandshandlaggare",
     label: "Biståndshandläggare",
     shortLabel: "Biståndshandläggare",
@@ -146,8 +136,8 @@ export function getWorkingHoursOption(slug: string) {
   return workingHoursOptions.find((option) => option.slug === slug);
 }
 
-// Längsta termen prövas först, så att skolkurator vinner över kurator oavsett
-// i vilken ordning kategorierna råkar stå i listan ovan.
+// Längsta termen prövas först så att en mer specifik redaktionell kategori
+// vinner när dess titelterm innehåller en kortare kategoris titelterm.
 const titleMatchers = occupationCategories
   .flatMap((category) => category.titleTerms.map((term) => ({
     category,
