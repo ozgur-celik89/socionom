@@ -51,7 +51,6 @@ export type JobtechAd = {
   last_publication_date?: string | null;
   removed?: boolean | null;
   removed_date?: string | null;
-  remote?: boolean | null;
   timestamp?: number | null;
 };
 

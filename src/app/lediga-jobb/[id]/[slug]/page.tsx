@@ -163,7 +163,7 @@ export default async function JobDetailPage({ params }: Props) {
                   <li><CalendarIcon /><span><strong>Publicerad</strong>{formatDate(job.publishedAt)}</span></li>
                   {(job.workingHours || scope) && <li><ClockIcon /><span><strong>Omfattning</strong>{[job.workingHours, scope].filter(Boolean).join(" · ")}</span></li>}
                   {(job.duration || job.employmentType) && <li><BriefcaseIcon /><span><strong>Anställning</strong>{[job.employmentType, job.duration].filter(Boolean).join(" · ")}</span></li>}
-                  {job.vacancies && <li><BriefcaseIcon /><span><strong>Antal tjänster</strong>{job.vacancies}</span></li>}
+                  {job.vacancies ? <li><BriefcaseIcon /><span><strong>Antal tjänster</strong>{job.vacancies}</span></li> : null}
                 </ul>
               </div>
             </aside>

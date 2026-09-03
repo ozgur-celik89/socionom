@@ -2,9 +2,20 @@ import sanitizeHtml from "sanitize-html";
 import type { Job, JobLocation, JobSummary, SitemapJob } from "@/domain/jobs/types";
 import { isApplicationDeadlinePassed } from "@/domain/jobs/rules";
 import { slugify } from "@/lib/slug";
+import { toIsoTimestamp } from "@/lib/time";
 import type { JobtechAd } from "./types";
 
 const REMOTE_PATTERN = /(?:distansarbete|arbete på distans|arbeta på distans|jobba på distans|hemifrån|remote work|delvis på distans)/i;
+
+/**
+ * JobSearch har inget fält för distansarbete – filtret remote=true är en egen
+ * klassificering som inte följer med i svaret. Märkningen härleds därför ur
+ * annonstexten, och kortet och annonssidan måste läsa samma text för att inte
+ * ge olika besked om samma jobb.
+ */
+function isRemoteJob(title: string, descriptionText: string) {
+  return REMOTE_PATTERN.test(`${title} ${descriptionText}`);
+}
 
 function safeHttpUrl(value: unknown) {
   if (typeof value !== "string") return undefined;
@@ -139,12 +150,14 @@ export function mapJobtechAd(ad: JobtechAd): Job | null {
     workingHours: ad.working_hours_type?.label ?? undefined,
     scopeMin: ad.scope_of_work?.min ?? undefined,
     scopeMax: ad.scope_of_work?.max ?? undefined,
-    remote: ad.remote ?? REMOTE_PATTERN.test(`${title} ${descriptionText}`),
+    remote: isRemoteJob(title, descriptionText),
     publishedAt,
     expiresAt,
     applyUrl,
     sourceUrl,
-    sourceUpdatedAt: ad.timestamp ? new Date(ad.timestamp).toISOString() : publishedAt,
+    sourceUpdatedAt: ad.timestamp
+      ? new Date(ad.timestamp).toISOString()
+      : toIsoTimestamp(publishedAt) ?? publishedAt,
     vacancies: ad.number_of_vacancies ?? undefined,
   };
 }
@@ -165,7 +178,7 @@ export function mapJobtechAdSummary(ad: JobtechAd): JobSummary | null {
   ) return null;
 
   const employerName = ad.employer?.name?.trim() || ad.employer?.workplace?.trim() || "Arbetsgivare ej angiven";
-  const remoteSearchText = ad.description?.text?.trim() ?? "";
+  const descriptionText = descriptionAsText(ad.description?.text_formatted, ad.description?.text);
 
   return {
     id,
@@ -180,7 +193,7 @@ export function mapJobtechAdSummary(ad: JobtechAd): JobSummary | null {
     workingHours: ad.working_hours_type?.label ?? undefined,
     scopeMin: ad.scope_of_work?.min ?? undefined,
     scopeMax: ad.scope_of_work?.max ?? undefined,
-    remote: ad.remote ?? REMOTE_PATTERN.test(`${title} ${remoteSearchText}`),
+    remote: isRemoteJob(title, descriptionText),
     publishedAt,
     expiresAt,
   };
@@ -197,6 +210,10 @@ export function mapJobtechSitemapJob(ad: JobtechAd): SitemapJob | null {
   return {
     id,
     slug: slugify(title),
-    sourceUpdatedAt: ad.timestamp ? new Date(ad.timestamp).toISOString() : publishedAt,
+    // <lastmod> kräver en fullständig tidsangivelse. Källans tidsstämpel saknar
+    // tidszon, så den måste tolkas som svensk tid innan den skrivs ut.
+    sourceUpdatedAt: ad.timestamp
+      ? new Date(ad.timestamp).toISOString()
+      : toIsoTimestamp(publishedAt) ?? publishedAt,
   };
 }

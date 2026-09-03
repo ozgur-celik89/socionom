@@ -23,7 +23,8 @@ describe("job search params", () => {
   });
 
   it("limits pagination and drops unknown parameters from pagination links", () => {
-    expect(parsePage("999")).toBe(101);
+    // Taket motsvarar sista sidan katalogen kan nå, så ingen sida serveras två gånger.
+    expect(parsePage("999")).toBe(105);
     expect(parsePage("-2")).toBe(1);
 
     const params = toPaginationParams({ q: "kurator", okand: "hemligt", sida: "4" });

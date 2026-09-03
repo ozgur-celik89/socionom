@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { brandColors } from "@/lib/brand";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -8,7 +9,9 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",
-    theme_color: "#185a4a",
+    // Samma värde som <meta name="theme-color"> i layouten, annars färgar
+    // webbläsaren sitt gränssnitt olika beroende på om sajten är installerad.
+    theme_color: brandColors.shell,
     icons: [
       { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
       { src: "/apple-icon", sizes: "180x180", type: "image/png" },

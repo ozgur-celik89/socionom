@@ -13,6 +13,7 @@ const occupation: OccupationCategory = {
   shortLabel: "Socialsekreterare",
   description: "",
   groupIds: ["pok1_ipJ_yzD"],
+  titleTerms: ["socialsekreterare"],
 };
 const region: Region = {
   slug: "skane",

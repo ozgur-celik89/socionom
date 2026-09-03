@@ -1,17 +1,6 @@
-const swedenDateFormatter = new Intl.DateTimeFormat("sv-SE", {
-  day: "2-digit",
-  month: "2-digit",
-  timeZone: "Europe/Stockholm",
-  year: "numeric",
-});
+import { dateInSweden } from "@/lib/time";
 
-export function dateInSweden(now = new Date()) {
-  const parts = Object.fromEntries(
-    swedenDateFormatter.formatToParts(now).map((part) => [part.type, part.value]),
-  );
-
-  return `${parts.year}-${parts.month}-${parts.day}`;
-}
+export { dateInSweden };
 
 export function isApplicationDeadlinePassed(value?: string, now = new Date()) {
   if (!value) return false;
@@ -21,4 +10,3 @@ export function isApplicationDeadlinePassed(value?: string, now = new Date()) {
   // Arbetsförmedlingens datum gäller hela den angivna kalenderdagen.
   return deadlineDate < dateInSweden(now);
 }
-

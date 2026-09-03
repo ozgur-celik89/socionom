@@ -59,8 +59,8 @@ export function JobResults({
         <h2>{getJobResultsHeading(result.total, headingContext)}</h2>
         {result.filteredOut ? (
           <p className="results-curation">
-            {formatNumber(result.filteredOut)} annonser i samma sökning valdes bort –
-            familjehemsuppdrag, dubbletter och utgångna annonser.{" "}
+            {formatNumber(result.filteredOut)} {result.filteredOut === 1 ? "annons" : "annonser"} i
+            samma sökning valdes bort – familjehemsuppdrag, dubbletter och utgångna annonser.{" "}
             <Link href="/sa-valjer-vi-jobb">Så väljer vi jobb</Link>
           </p>
         ) : null}

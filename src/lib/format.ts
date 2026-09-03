@@ -1,3 +1,5 @@
+import { parseSwedishTimestamp, swedishDayDifference } from "./time";
+
 const dateFormatter = new Intl.DateTimeFormat("sv-SE", {
   day: "numeric",
   month: "long",
@@ -13,28 +15,25 @@ export function formatNumber(value: number) {
 }
 
 export function formatDate(value?: string) {
-  if (!value) return undefined;
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return undefined;
-  return dateFormatter.format(date);
+  const date = parseSwedishTimestamp(value);
+  return date ? dateFormatter.format(date) : undefined;
 }
 
 export function formatPublishedDate(value: string) {
-  const date = new Date(value);
-  const now = new Date();
-  const diffDays = Math.round((date.getTime() - now.getTime()) / 86_400_000);
+  const date = parseSwedishTimestamp(value);
+  if (!date) return "Publicerad nyligen";
 
-  if (Number.isFinite(diffDays) && diffDays <= 0 && diffDays >= -6) {
-    return `Publicerad ${relativeFormatter.format(diffDays, "day")}`;
-  }
+  const days = swedishDayDifference(date, new Date());
+  if (days <= 0 && days >= -6) return `Publicerad ${relativeFormatter.format(days, "day")}`;
 
-  return `Publicerad ${formatDate(value) ?? "nyligen"}`;
+  return `Publicerad ${dateFormatter.format(date)}`;
 }
 
 export function isRecentlyPublished(value: string, days = 3) {
-  const published = new Date(value).getTime();
-  if (Number.isNaN(published)) return false;
-  const age = Date.now() - published;
+  const published = parseSwedishTimestamp(value);
+  if (!published) return false;
+
+  const age = Date.now() - published.getTime();
   return age >= 0 && age <= days * 86_400_000;
 }
 

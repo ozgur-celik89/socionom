@@ -7,9 +7,17 @@ function single(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
+/**
+ * Katalogen når som mest 2 100 annonser (JobSearch offset-tak 2 000 plus en
+ * hämtning om 100), vilket med sidstorlek 20 blir 105 sidor. Ett lägre tak här
+ * skulle servera sista sidans innehåll under flera adresser; taket finns bara
+ * för att stoppa skräp som ?sida=999999.
+ */
+const MAX_PAGE = 105;
+
 export function parsePage(value: string | string[] | undefined) {
   const parsed = Number.parseInt(single(value) ?? "1", 10);
-  return Number.isFinite(parsed) && parsed > 0 ? Math.min(parsed, 101) : 1;
+  return Number.isFinite(parsed) && parsed > 0 ? Math.min(parsed, MAX_PAGE) : 1;
 }
 
 export function parseJobSearchParams(params: RawSearchParams) {

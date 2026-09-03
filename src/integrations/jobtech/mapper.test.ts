@@ -68,18 +68,32 @@ describe("mapJobtechAd", () => {
     })).toBeNull();
   });
 
-  it("derives plain text from formatted descriptions and respects the API remote flag", () => {
+  it("derives plain text from formatted descriptions", () => {
     const job = mapJobtechAd({
       id: "formatted",
-      headline: "Kurator på distans",
+      headline: "Kurator",
       webpage_url: "https://arbetsformedlingen.se/platsbanken/annonser/formatted",
       publication_date: "2099-01-01T10:00:00",
       description: { text_formatted: "<p>Viktigt <strong>arbete</strong>.</p>" },
-      remote: false,
     });
 
     expect(job?.descriptionText).toBe("Viktigt arbete.");
     expect(job?.remote).toBe(false);
+  });
+
+  // JobSearch har inget fält för distansarbete, så märkningen härleds ur texten.
+  // Kortet och annonssidan måste läsa samma text, annars ger de olika besked.
+  it("agrees with the card on whether a job allows remote work", () => {
+    const ad = {
+      id: "remote",
+      headline: "Kurator",
+      webpage_url: "https://arbetsformedlingen.se/platsbanken/annonser/remote",
+      publication_date: "2099-01-01T10:00:00",
+      description: { text_formatted: "<p>Möjlighet till <strong>distansarbete</strong> finns.</p>" },
+    };
+
+    expect(mapJobtechAd(ad)?.remote).toBe(true);
+    expect(mapJobtechAdSummary(ad)?.remote).toBe(true);
   });
 
   it("wraps formatted API text without block elements in paragraphs", () => {

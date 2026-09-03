@@ -5,7 +5,14 @@ export type OccupationCategory = {
   description: string;
   groupIds: string[];
   occupationNameIds?: string[];
+  /** Fritextfilter mot JobSearch när landningssidan hämtar sina annonser. */
   query?: string;
+  /**
+   * Termer som pekar ut kategorin i en annonsrubrik. Håll dem åtskilda från
+   * query: det är ett sökfilter och kan vara för brett för att klassa på – ett
+   * query som "socionom" skulle fånga nästan varje rubrik på sajten.
+   */
+  titleTerms: string[];
 };
 
 export const occupationGroupIds = {
@@ -53,6 +60,7 @@ export const occupationCategories: OccupationCategory[] = [
     description:
       "Hitta aktuella tjänster inom myndighetsutövning, barn och unga, vuxen, ekonomiskt bistånd och andra delar av socialtjänsten.",
     groupIds: [occupationGroupIds.socialsekreterare],
+    titleTerms: ["socialsekreterare"],
   },
   {
     slug: "kurator",
@@ -66,6 +74,7 @@ export const occupationCategories: OccupationCategory[] = [
       occupationNameIds.skolkurator,
       occupationNameIds.halsoOchSjukvardskurator,
     ],
+    titleTerms: ["kurator"],
   },
   {
     slug: "skolkurator",
@@ -75,6 +84,7 @@ export const occupationCategories: OccupationCategory[] = [
       "Sök tjänster som skolkurator inom grundskola, gymnasium och elevhälsa.",
     groupIds: [occupationGroupIds.kuratorer],
     query: "skolkurator",
+    titleTerms: ["skolkurator"],
   },
   {
     slug: "bistandshandlaggare",
@@ -83,6 +93,7 @@ export const occupationCategories: OccupationCategory[] = [
     description:
       "Hitta jobb inom biståndsbedömning, äldreomsorg, funktionsstöd och kommunal handläggning.",
     groupIds: [occupationGroupIds.bistandsbedomare],
+    titleTerms: ["biståndshandläggare", "biståndsbedömare"],
   },
   {
     slug: "lss-handlaggare",
@@ -92,6 +103,7 @@ export const occupationCategories: OccupationCategory[] = [
       "Se aktuella tjänster med utredning och beslut om stöd enligt LSS och socialtjänstlagen.",
     groupIds: [occupationGroupIds.bistandsbedomare],
     query: "LSS-handläggare",
+    titleTerms: ["lss-handläggare", "lss handläggare"],
   },
   {
     slug: "familjebehandlare",
@@ -101,6 +113,7 @@ export const occupationCategories: OccupationCategory[] = [
       "Sök behandlande och stödjande roller för barn, unga och familjer.",
     groupIds: [occupationGroupIds.socialsekreterare, occupationGroupIds.kuratorer],
     query: "familjebehandlare",
+    titleTerms: ["familjebehandlare"],
   },
   {
     slug: "behandlingsassistent",
@@ -110,6 +123,7 @@ export const occupationCategories: OccupationCategory[] = [
       "Hitta behandlingsroller där socionomkompetens efterfrågas inom exempelvis HVB, öppenvård och stödverksamhet.",
     groupIds: [occupationGroupIds.behandlingsassistenter],
     query: "socionom",
+    titleTerms: ["behandlingsassistent", "socialpedagog"],
   },
 ];
 
@@ -132,14 +146,26 @@ export function getWorkingHoursOption(slug: string) {
   return workingHoursOptions.find((option) => option.slug === slug);
 }
 
+// Längsta termen prövas först, så att skolkurator vinner över kurator oavsett
+// i vilken ordning kategorierna råkar stå i listan ovan.
+const titleMatchers = occupationCategories
+  .flatMap((category) => category.titleTerms.map((term) => ({
+    category,
+    term: term.toLocaleLowerCase("sv-SE"),
+  })))
+  .sort((a, b) => b.term.length - a.term.length);
+
+/**
+ * Kategorin som en annons hör hemma i. Rubriken avgör när den nämner ett yrke
+ * vid namn; annars får annonsens yrkesgrupp bestämma. Fallbacken är beroende av
+ * ordningen i occupationCategories: den generiska kategorin för en yrkesgrupp
+ * måste stå före de smalare som delar samma grupp.
+ */
 export function getBestOccupationCategory(title: string, conceptIds: string[]) {
   const normalizedTitle = title.toLocaleLowerCase("sv-SE");
-  const specificMatch = occupationCategories.find((category) => {
-    const term = category.query ?? category.shortLabel;
-    return normalizedTitle.includes(term.toLocaleLowerCase("sv-SE"));
-  });
+  const titleMatch = titleMatchers.find(({ term }) => normalizedTitle.includes(term));
 
-  return specificMatch ?? occupationCategories.find((category) =>
+  return titleMatch?.category ?? occupationCategories.find((category) =>
     category.groupIds.some((groupId) => conceptIds.includes(groupId))
   );
 }
