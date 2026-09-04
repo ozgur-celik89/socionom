@@ -5,7 +5,7 @@ import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { JsonLd } from "@/components/JsonLd";
 import { SiteAnalytics } from "@/components/SiteAnalytics";
-import { siteConfig } from "@/config/site";
+import { siteConfig, socialProfiles } from "@/config/site";
 import { brandColors } from "@/lib/brand";
 import "./globals.css";
 
@@ -54,6 +54,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
             name: siteConfig.name,
             url: siteConfig.url,
             email: siteConfig.email,
+            sameAs: [socialProfiles.instagram.url],
           }}
         />
       </body>

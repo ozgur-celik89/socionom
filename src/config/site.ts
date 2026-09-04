@@ -7,6 +7,14 @@ export const siteConfig = {
   advertisingEmail: "annonsera@socionom.se",
 } as const;
 
+/** Sociala konton. Handle och URL hålls ihop så footern och sameAs inte glider isär. */
+export const socialProfiles = {
+  instagram: {
+    handle: "@socionom.se",
+    url: "https://www.instagram.com/socionom.se/",
+  },
+} as const;
+
 export const mainNavigation = [
   { href: "/lediga-jobb", label: "Hitta jobb" },
   { href: "/#yrkesomraden", label: "Yrkesområden" },

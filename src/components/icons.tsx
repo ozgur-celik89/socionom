@@ -121,6 +121,16 @@ export function AlertIcon(props: IconProps) {
   );
 }
 
+export function InstagramIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <rect height="18" rx="5" stroke="currentColor" strokeWidth="1.8" width="18" x="3" y="3" />
+      <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="17.2" cy="6.8" fill="currentColor" r="1.1" />
+    </IconBase>
+  );
+}
+
 export function FlagIcon(props: IconProps) {
   return (
     <IconBase {...props}>

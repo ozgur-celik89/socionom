@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { occupationCategories } from "@/config/jobs";
-import { siteConfig } from "@/config/site";
+import { siteConfig, socialProfiles } from "@/config/site";
+import { InstagramIcon } from "./icons";
 import { Logo } from "./Logo";
 
 export function Footer() {
@@ -10,6 +11,15 @@ export function Footer() {
         <div className="footer-intro">
           <Logo />
           <p>En fristående jobbsajt med fokus på socionomer och socialt arbete i Sverige.</p>
+          <a
+            className="footer-social"
+            href={socialProfiles.instagram.url}
+            rel="me noopener"
+            target="_blank"
+          >
+            <InstagramIcon />
+            <span>{socialProfiles.instagram.handle}</span>
+          </a>
         </div>
 
         <div>

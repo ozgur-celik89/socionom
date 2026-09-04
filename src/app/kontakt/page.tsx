@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ContentPage } from "@/components/ContentPage";
-import { siteConfig } from "@/config/site";
+import { siteConfig, socialProfiles } from "@/config/site";
 
 export const metadata: Metadata = {
   title: "Kontakt",
@@ -23,6 +23,13 @@ export default function ContactPage() {
         <h2>För arbetsgivare</h2>
         <p>För frågor om framtida annonsering och samarbeten:</p>
         <a href={`mailto:${siteConfig.advertisingEmail}`}>{siteConfig.advertisingEmail}</a>
+      </div>
+      <div className="contact-card">
+        <h2>Instagram</h2>
+        <p>Nya jobb och uppdateringar:</p>
+        <a href={socialProfiles.instagram.url} rel="me noopener" target="_blank">
+          {socialProfiles.instagram.handle}
+        </a>
       </div>
       <p>Vi försöker svara så snart vi kan. Frågor om en specifik rekrytering bör ställas direkt till arbetsgivaren i annonsen.</p>
     </ContentPage>
